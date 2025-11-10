@@ -1,13 +1,19 @@
 # FRP Client Configuration (Office LLM Server)
 # Version: v0.65.0
 # Location: /etc/frp/frpc.toml
+#
+# ⚠️ 설정 전 확인사항:
+# - serverAddr: miniPC의 공인 IP로 설정 (curl ifconfig.me로 확인)
+# - auth.token: 서버(frps)와 동일한 값으로 설정
+# - localIP: LLM 서버의 실제 내부 IP로 설정
+# - localPort: LLM API의 실제 포트로 설정
 
 # Server connection
-serverAddr = "YOUR_SERVER_PUBLIC_IP"  # miniPC public IP (예: 110.13.119.7)
-serverPort = 7000  # FRP 서버의 bindPort와 동일
+serverAddr = "110.13.119.7"  # miniPC public IP (환경에 맞게 변경)
+serverPort = 7000
 
 # Authentication token (must match server)
-auth.token = "CHANGE_ME_TO_SECURE_TOKEN"  # ⚠️ 서버와 동일한 토큰 사용!
+auth.token = "deasea!1"  # ⚠️ 서버와 동일한 값으로 변경!
 
 # Log configuration
 log.level = "info"
@@ -20,8 +26,8 @@ transport.heartbeatTimeout = 90
 [[proxies]]
 name = "llm-api"
 type = "http"
-localIP = "YOUR_LLM_SERVER_IP"  # LLM 서버 내부 IP (예: 172.21.113.31)
-localPort = 4000  # LLM API 포트 (실제 포트로 변경)
+localIP = "172.21.113.31"  # LLM 서버 내부 IP (환경에 맞게 변경)
+localPort = 4000  # LLM API 포트 (환경에 맞게 변경)
 customDomains = ["llm.local"]
 # subdomain = "llm"  # Alternative: use subdomain instead of custom domain
 

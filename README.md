@@ -84,7 +84,9 @@
 - miniPC의 공인 IP 주소 (예: `curl ifconfig.me`로 확인)
 - LLM 서버의 내부 IP 주소
 - LLM API 포트 번호
-- 강력한 인증 토큰 (예: `openssl rand -base64 32`로 생성)
+
+**참고**: 저장소에 포함된 설정 파일(`configs/*.toml`)은 실제 값이 설정되어 있어 바로 사용 가능합니다.
+환경에 맞게 수정이 필요한 경우에만 편집하세요.
 
 ### 1. miniPC에 FRP 서버 설치
 
@@ -99,25 +101,22 @@ sudo bash scripts/install-frps.sh
 
 설치 스크립트는 다음을 수행합니다:
 - FRP v0.65.0 바이너리 다운로드 및 설치
-- 설정 파일 생성 (`/etc/frp/frps.toml`)
+- 저장소의 설정 파일(`configs/frps.toml`)을 `/etc/frp/`로 복사
 - systemd 서비스 등록 및 시작
 - 자동 재시작 설정
 
-**⚠️ 설치 후 반드시 다음을 수행하세요:**
+**설치 완료 후:**
+
+저장소의 기본 설정으로 바로 작동합니다. 필요시에만 수정하세요:
 
 ```bash
-# 설정 파일 편집
+# 설정 확인 (선택사항)
+sudo cat /etc/frp/frps.toml
+
+# 설정 수정이 필요한 경우
 sudo vi /etc/frp/frps.toml
 
-# 변경할 항목:
-# - bindPort: 원하는 제어 포트 (기본값: 7000)
-# - auth.token: 강력한 토큰으로 변경
-# - vhostHTTPPort: 원하는 HTTP 포트 (기본값: 8081)
-
-# 설정 파일 권한 설정
-sudo chmod 600 /etc/frp/frps.toml
-
-# 서비스 재시작
+# 수정 후 서비스 재시작
 sudo systemctl restart frps
 ```
 
@@ -132,23 +131,21 @@ cd frps
 sudo bash scripts/install-frpc.sh
 ```
 
-**⚠️ 설치 후 반드시 다음을 수행하세요:**
+**설치 완료 후:**
+
+저장소의 기본 설정으로 바로 작동합니다. 다른 환경이면 수정하세요:
 
 ```bash
-# 설정 파일 편집
-sudo vi /etc/frp/frpc.toml
+# 설정 확인 (선택사항)
+sudo cat /etc/frp/frpc.toml
 
-# 변경할 항목:
-# - serverAddr: miniPC의 공인 IP 주소
-# - serverPort: miniPC의 FRP 제어 포트
-# - auth.token: 서버와 동일한 토큰
+# 다른 환경에서 사용하는 경우 수정
+sudo vi /etc/frp/frpc.toml
+# - serverAddr: miniPC의 공인 IP
 # - localIP: LLM 서버의 내부 IP
 # - localPort: LLM API 포트
 
-# 설정 파일 권한 설정
-sudo chmod 600 /etc/frp/frpc.toml
-
-# 서비스 재시작
+# 수정 후 서비스 재시작
 sudo systemctl restart frpc
 ```
 

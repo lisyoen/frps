@@ -61,9 +61,16 @@ cp frps ${FRP_DIR}/
 chmod +x ${FRP_DIR}/frps
 
 # Copy configuration if provided
-if [ -f "../configs/frps.toml" ]; then
-    echo -e "${YELLOW}Installing configuration...${NC}"
-    cp ../configs/frps.toml ${CONFIG_DIR}/
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CONFIG_SOURCE="${SCRIPT_DIR}/../configs/frps.toml"
+
+if [ -f "${CONFIG_SOURCE}" ]; then
+    echo -e "${YELLOW}Installing configuration from repository...${NC}"
+    cp "${CONFIG_SOURCE}" ${CONFIG_DIR}/
+    echo -e "${GREEN}✓ Configuration installed${NC}"
+    echo -e "${YELLOW}⚠️  Please review and update if needed:${NC}"
+    echo -e "${YELLOW}   - ${CONFIG_DIR}/frps.toml${NC}"
+    echo -e "${YELLOW}   - Change auth.token for production use${NC}"
 else
     echo -e "${YELLOW}Creating default configuration...${NC}"
     cat > ${CONFIG_DIR}/frps.toml << 'EOF'
@@ -75,7 +82,7 @@ log.level = "info"
 log.maxDays = 7
 transport.heartbeatTimeout = 90
 EOF
-    echo -e "${RED}⚠️  WARNING: Please change the default auth.token in ${CONFIG_DIR}/frps.toml${NC}"
+    echo -e "${RED}⚠️  WARNING: Please configure ${CONFIG_DIR}/frps.toml${NC}"
 fi
 
 # Create systemd service

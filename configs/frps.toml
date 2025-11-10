@@ -1,16 +1,21 @@
 # FRP Server Configuration (miniPC)
 # Version: v0.65.0
 # Location: /etc/frp/frps.toml
+#
+# ⚠️ 보안 권장사항:
+# - auth.token을 강력한 값으로 변경하세요 (openssl rand -base64 32)
+# - 필요에 따라 포트 번호를 변경하세요
+# - 이 파일의 권한을 600으로 설정하세요 (chmod 600)
 
 # Server bind address and port
 bindAddr = "0.0.0.0"
-bindPort = 7000  # 변경 권장: 다른 포트 번호 사용
+bindPort = 7000  # 제어 포트 (필요시 변경)
 
 # Authentication token (must match client)
-auth.token = "CHANGE_ME_TO_SECURE_TOKEN"  # ⚠️ 반드시 변경하세요!
+auth.token = "deasea!1"  # ⚠️ 프로덕션에서는 반드시 변경!
 
 # HTTP vhost configuration
-vhostHTTPPort = 8081  # 변경 권장: 다른 포트 번호 사용
+vhostHTTPPort = 8081  # HTTP 프록시 포트 (필요시 변경)
 
 # Log configuration
 log.level = "info"

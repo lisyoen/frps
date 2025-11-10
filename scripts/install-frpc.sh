@@ -61,9 +61,18 @@ cp frpc ${FRP_DIR}/
 chmod +x ${FRP_DIR}/frpc
 
 # Copy configuration if provided
-if [ -f "../configs/frpc.toml" ]; then
-    echo -e "${YELLOW}Installing configuration...${NC}"
-    cp ../configs/frpc.toml ${CONFIG_DIR}/
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CONFIG_SOURCE="${SCRIPT_DIR}/../configs/frpc.toml"
+
+if [ -f "${CONFIG_SOURCE}" ]; then
+    echo -e "${YELLOW}Installing configuration from repository...${NC}"
+    cp "${CONFIG_SOURCE}" ${CONFIG_DIR}/
+    echo -e "${GREEN}✓ Configuration installed${NC}"
+    echo -e "${YELLOW}⚠️  Please review and update if needed:${NC}"
+    echo -e "${YELLOW}   - ${CONFIG_DIR}/frpc.toml${NC}"
+    echo -e "${YELLOW}   - serverAddr: your FRP server IP${NC}"
+    echo -e "${YELLOW}   - auth.token: same as server${NC}"
+    echo -e "${YELLOW}   - localIP: your LLM server IP${NC}"
 else
     echo -e "${YELLOW}Creating default configuration...${NC}"
     cat > ${CONFIG_DIR}/frpc.toml << 'EOF'
@@ -81,10 +90,7 @@ localIP = "YOUR_LLM_SERVER_IP"
 localPort = 4000
 customDomains = ["llm.local"]
 EOF
-    echo -e "${RED}⚠️  WARNING: Please configure ${CONFIG_DIR}/frpc.toml with:${NC}"
-    echo -e "${RED}   - serverAddr (your FRP server IP)${NC}"
-    echo -e "${RED}   - auth.token (same as server)${NC}"
-    echo -e "${RED}   - localIP (your LLM server IP)${NC}"
+    echo -e "${RED}⚠️  WARNING: Please configure ${CONFIG_DIR}/frpc.toml${NC}"
 fi
 
 # Create systemd service

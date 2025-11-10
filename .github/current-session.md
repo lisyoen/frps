@@ -1,11 +1,13 @@
 ```markdown
 # Current Session
 
-**세션 ID**: 없음 ❌
+**세션 ID**: session-20251111-002-frpc-deploy-at-office
 
-**상태**: 완료 ✅
+**상태**: 대기 중 ⏸️ (회사 LLM 서버에서 재개 예정)
 
-**작업**: -
+**작업**: 회사 LLM 서버에 FRP 클라이언트(frpc) 설치
+
+**상세**: `.github/sessions/session-20251111-002-frpc-deploy-at-office.md` 참조
 
 ---
 

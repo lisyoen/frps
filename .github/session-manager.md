@@ -4,7 +4,17 @@
 
 ## 활성/최근 세션
 
-### 1. session-20251111-001-frp-setup ✅
+### 1. session-20251111-002-frpc-deploy-at-office ⏸️
+- **날짜**: 2025-11-11
+- **상태**: 대기 중 ⏸️ (회사 LLM 서버에서 재개 예정)
+- **작업**: 회사 LLM 서버에 FRP 클라이언트(frpc) 설치
+- **상세**: [session-20251111-002-frpc-deploy-at-office.md](sessions/session-20251111-002-frpc-deploy-at-office.md)
+- **목적**: 
+  - 회사 LLM 서버에서 Git 클론 후 frpc 설치
+  - miniPC frps와 연결 테스트
+  - 집에서 회사 LLM API 접근 확인
+
+### 2. session-20251111-001-frp-setup ✅
 - **날짜**: 2025-11-11
 - **상태**: 완료 ✅
 - **작업**: FRP 역방향 프록시 환경 구축

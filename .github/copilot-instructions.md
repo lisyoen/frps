@@ -22,6 +22,24 @@ git message 는 한국어로 생성해야 합니다.
 
 모르는 내용이 있으면 사용자에게 ChatGPT에게 물어보라고 요청합니다.
 
+## 개발 환경 정보 (필수 참고!)
+
+### 작업 전 개발 환경 확인
+**모든 작업을 시작하기 전에 `.github/development-environment.md` 파일을 참고하여 현재 개발 환경을 파악합니다.**
+
+이 파일에는 다음 내용이 포함되어 있습니다:
+- **Hosts**: 개발 PC (Windows/Linux) 및 서버 정보
+- **Runtime Environments**: Node.js, Python, Docker 등 설치된 도구 버전
+- **Development Tools Configuration**: npm, pip, gradle, maven 등 경로 및 설정
+- **Network**: 라우터, LAN 구성, 보안 정보
+- **LLM Configuration**: OpenAI API 키 및 엔드포인트 정보
+
+**주요 활용 시나리오**:
+- 스크립트 작성 시 올바른 Node.js/Python 버전 참조
+- 경로 설정 시 실제 설치된 도구 경로 확인
+- Docker 사용 가능 여부 확인 (miniPC만 가능)
+- API 엔드포인트 설정 시 LLM Configuration 참조
+
 ## 프로젝트 목표 및 컨텍스트 (최우선!)
 
 ### 작업 시작 전 필수 확인
@@ -35,10 +53,11 @@ git message 는 한국어로 생성해야 합니다.
 - LLM 엔드포인트 및 설정 정보
 
 작업 시작 시:
-1. `.github/project-goal.md` 읽기
-2. 현재 작업이 프로젝트 목표와 부합하는지 확인
-3. 필요한 기술 스택 및 설정 정보 파악
-4. 작업 진행
+1. `.github/development-environment.md` 읽기 → 개발 환경 확인
+2. `.github/project-goal.md` 읽기 → 프로젝트 목표 확인
+3. 현재 작업이 프로젝트 목표와 부합하는지 확인
+4. 필요한 기술 스택 및 설정 정보 파악
+5. 작업 진행
 
 ## 코드 품질 관리 및 에러 검증
 

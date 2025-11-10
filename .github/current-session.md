@@ -1,11 +1,17 @@
+```markdown
 # Current Session
 
-**세션 ID**: 없음 ❌
+**세션 ID**: session-20251111-001-frp-setup
 
-**상태**: 완료 ✅
+**상태**: 진행 중 🔄
 
-**작업**: -
+**작업**: Fast Reverse Proxy (FRP) 역방향 프록시 환경 구축
+
+**상세**: `.github/sessions/session-20251111-001-frp-setup.md` 참조
 
 ---
 
-## 마지막 완료 세션
+## 작업 개요
+회사 내부망 LLM 서버를 집에서 안전하게 호출하기 위한 FRP 기반 역방향 터널링 구축
+
+```

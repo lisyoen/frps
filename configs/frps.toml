@@ -1,0 +1,30 @@
+# FRP Server Configuration (miniPC)
+# Version: v0.65.0
+# Location: /etc/frp/frps.toml
+
+# Server bind address and port
+bindAddr = "0.0.0.0"
+bindPort = 7000
+
+# Authentication token (must match client)
+auth.token = "deasea!1"
+
+# HTTP vhost configuration
+vhostHTTPPort = 8081
+
+# Log configuration
+log.level = "info"
+log.maxDays = 7
+
+# Dashboard (optional - for monitoring)
+# Uncomment to enable
+# webServer.addr = "0.0.0.0"
+# webServer.port = 7500
+# webServer.user = "admin"
+# webServer.password = "admin"
+
+# Maximum connections per proxy
+maxPortsPerClient = 0
+
+# Enable heartbeat
+transport.heartbeatTimeout = 90

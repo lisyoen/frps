@@ -1,0 +1,34 @@
+# FRP Client Configuration (Office LLM Server)
+# Version: v0.65.0
+# Location: /etc/frp/frpc.toml
+
+# Server connection
+serverAddr = "110.13.119.7"  # miniPC public IP
+serverPort = 7000
+
+# Authentication token (must match server)
+auth.token = "deasea!1"
+
+# Log configuration
+log.level = "info"
+log.maxDays = 7
+
+# Enable heartbeat
+transport.heartbeatTimeout = 90
+
+# Proxy configuration for LLM API
+[[proxies]]
+name = "llm-api"
+type = "http"
+localIP = "172.21.113.31"
+localPort = 4000
+customDomains = ["llm.local"]
+# subdomain = "llm"  # Alternative: use subdomain instead of custom domain
+
+# Optional: Add more proxies as needed
+# [[proxies]]
+# name = "another-service"
+# type = "tcp"
+# localIP = "127.0.0.1"
+# localPort = 8080
+# remotePort = 8080

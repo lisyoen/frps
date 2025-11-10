@@ -24,40 +24,41 @@ miniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
 | 구분 | 역할 | 비고 |
 |------|------|------|
 | **사무실 LLM 서버** | FRP 클라이언트(`frpc`) 실행, miniPC로 역방향 연결 | GPU DGX Spark 기반 |
-| **miniPC (집)** | FRP 서버(`frps`) 구동, 외부 접속 중계 | 공개 포트 7000(제어), 8081(HTTP) |
+| **miniPC (집)** | FRP 서버(`frps`) 구동, 외부 접속 중계 | 공개 포트 (제어, HTTP) |
 | **집 PC** | HTTP 요청을 통해 miniPC를 통해 LLM API 호출 | 개발·테스트 환경 |
 
 ---
 
 ### 2.3 LLM 서버 사양
 - **GPU:** DGX Spark  
-- **LLM Endpoint:** 172.21.113.31  
+- **LLM Endpoint:** 172.21.xxx.xxx (보안상 마스킹)
 - **모델:** Qwen3-Coder-30B-A3B-Instruct  
 - **용도:** 실 업무 코드 작성, 테스트 및 코드 보조  
 - **특징:** 30B 파라미터 기반, 코드 생성 특화 모델  
 
-> API 연결 정보 (보안을 위해 일부 마스킹됨)  
+> API 연결 정보 (보안을 위해 마스킹됨)  
 > provider: `openai`  
 > model: `Qwen/Qwen3-Coder-30B-A3B-Instruct`  
-> apiKey: `sk-Dwgun2yU_YQkounRcLEuGA`  
-> apiBase: `http://172.21.113.31:4000/v1`
+> apiKey: `YOUR_API_KEY` (실제 키로 변경)
+> apiBase: `http://YOUR_LLM_SERVER_IP:YOUR_LLM_PORT/v1`
 
 ---
 
 ### 2.4 기술 목표
 1. **역방향 HTTP 프록시 구축**
-   - 사무실 LLM 서버 → miniPC 방향의 아웃바운드 연결(7000)
-   - miniPC → 집 PC 방향의 HTTP 응답(8081)
+   - 사무실 LLM 서버 → miniPC 방향의 아웃바운드 연결(제어 포트)
+   - miniPC → 집 PC 방향의 HTTP 응답(HTTP 포트)
 2. **LLM API 중계**
-   - miniPC의 8081 포트를 통해 LLM API를 외부에서 접근 가능하도록 제공
+   - miniPC의 HTTP 포트를 통해 LLM API를 외부에서 접근 가능하도록 제공
    - 실제 호출 예:  
      ```bash
-     curl -i http://<miniPC공인IP>:8081/v1/chat/completions \
+     curl -i http://<miniPC공인IP>:<HTTP포트>/v1/chat/completions \
        -H "Content-Type: application/json" \
-       -d '{"model":"Qwen3-Coder-30B-A3B-Instruct","messages":[{"role":"user","content":"ping"}]}'
+       -H "Host: llm.local" \
+       -d '{"model":"YOUR_MODEL","messages":[{"role":"user","content":"ping"}]}'
      ```
 3. **보안 통신**
-   - 인증 토큰(`deasea!1`) 기반 통신 제어
+   - 인증 토큰 기반 통신 제어 (강력한 토큰 사용 권장)
    - 향후 HTTPS(8443) 적용 및 접근 제어 프록시 추가 예정
 4. **운영 자동화**
    - `frps`, `frpc` 모두 systemd 서비스로 등록하여 자동 재시작 및 모니터링 구성

@@ -9,14 +9,20 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Configuration
-MINIPC_IP="110.13.119.7"
-FRP_HTTP_PORT="8081"
+MINIPC_IP="${FRP_SERVER_IP:-localhost}"
+FRP_HTTP_PORT="${FRP_HTTP_PORT:-8081}"
 LLM_API_ENDPOINT="http://${MINIPC_IP}:${FRP_HTTP_PORT}/v1"
-API_KEY="sk-Dwgun2yU_YQkounRcLEuGA"
+API_KEY="${LLM_API_KEY:-YOUR_API_KEY}"
 
 echo -e "${GREEN}=== LLM API Test ===${NC}"
 echo "Endpoint: ${LLM_API_ENDPOINT}"
 echo ""
+
+if [ "$API_KEY" = "YOUR_API_KEY" ]; then
+    echo -e "${RED}⚠️  WARNING: Please set LLM_API_KEY environment variable${NC}"
+    echo "Example: export LLM_API_KEY='your-api-key'"
+    echo ""
+fi
 
 # Test 1: List models
 echo -e "${YELLOW}[1/2] Testing /v1/models...${NC}"

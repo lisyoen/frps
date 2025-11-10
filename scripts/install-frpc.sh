@@ -67,9 +67,9 @@ if [ -f "../configs/frpc.toml" ]; then
 else
     echo -e "${YELLOW}Creating default configuration...${NC}"
     cat > ${CONFIG_DIR}/frpc.toml << 'EOF'
-serverAddr = "110.13.119.7"
+serverAddr = "YOUR_SERVER_PUBLIC_IP"
 serverPort = 7000
-auth.token = "deasea!1"
+auth.token = "CHANGE_ME_TO_SECURE_TOKEN"
 log.level = "info"
 log.maxDays = 7
 transport.heartbeatTimeout = 90
@@ -77,10 +77,14 @@ transport.heartbeatTimeout = 90
 [[proxies]]
 name = "llm-api"
 type = "http"
-localIP = "172.21.113.31"
+localIP = "YOUR_LLM_SERVER_IP"
 localPort = 4000
 customDomains = ["llm.local"]
 EOF
+    echo -e "${RED}⚠️  WARNING: Please configure ${CONFIG_DIR}/frpc.toml with:${NC}"
+    echo -e "${RED}   - serverAddr (your FRP server IP)${NC}"
+    echo -e "${RED}   - auth.token (same as server)${NC}"
+    echo -e "${RED}   - localIP (your LLM server IP)${NC}"
 fi
 
 # Create systemd service

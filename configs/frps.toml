@@ -4,13 +4,13 @@
 
 # Server bind address and port
 bindAddr = "0.0.0.0"
-bindPort = 7000
+bindPort = 7000  # 변경 권장: 다른 포트 번호 사용
 
 # Authentication token (must match client)
-auth.token = "deasea!1"
+auth.token = "CHANGE_ME_TO_SECURE_TOKEN"  # ⚠️ 반드시 변경하세요!
 
 # HTTP vhost configuration
-vhostHTTPPort = 8081
+vhostHTTPPort = 8081  # 변경 권장: 다른 포트 번호 사용
 
 # Log configuration
 log.level = "info"

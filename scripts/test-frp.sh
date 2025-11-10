@@ -9,12 +9,15 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-MINIPC_IP="110.13.119.7"
-FRP_CONTROL_PORT="7000"
-FRP_HTTP_PORT="8081"
+MINIPC_IP="${FRP_SERVER_IP:-localhost}"  # 환경변수 또는 localhost
+FRP_CONTROL_PORT="${FRP_CONTROL_PORT:-7000}"
+FRP_HTTP_PORT="${FRP_HTTP_PORT:-8081}"
 LLM_API_ENDPOINT="http://${MINIPC_IP}:${FRP_HTTP_PORT}/v1"
 
 echo -e "${GREEN}=== FRP Service Test ===${NC}"
+echo "Server IP: ${MINIPC_IP}"
+echo "Control Port: ${FRP_CONTROL_PORT}"
+echo "HTTP Port: ${FRP_HTTP_PORT}"
 echo ""
 
 # Test 1: Check if frps service is running (on miniPC)

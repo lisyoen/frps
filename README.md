@@ -40,17 +40,17 @@
 [회사 내부망]                    [인터넷]                [집]
 ┌──────────────────┐            
 │ LLM 서버          │            
-│ 172.21.113.31    │            
-│ Port: 4000       │            
+│ 172.21.xxx.xxx   │            
+│ Port: xxxx       │            
 └────────┬─────────┘            
          │                      
          │ frpc (client)        
          │ Outbound →           
          └──────────────────────────→  ┌─────────────────┐
                                        │ miniPC          │
-                                       │ 110.13.119.7    │
+                                       │ xxx.xxx.xxx.xxx │
                                        │ frps (server)   │
-                                       │ Port: 7000,8081 │
+                                       │ Port: xxxx,xxxx │
                                        └────────┬────────┘
                                                 │
                                                 ↓
@@ -70,13 +70,21 @@
 
 ### 포트 구성
 
-- **7000**: FRP 제어 포트 (frpc ↔ frps)
-- **8081**: HTTP 프록시 포트 (외부 → LLM API)
-- **4000**: LLM API 원본 포트 (내부망)
+- **CONTROL_PORT**: FRP 제어 포트 (frpc ↔ frps 통신)
+- **HTTP_PORT**: HTTP 프록시 포트 (외부 → LLM API)
+- **LLM_PORT**: LLM API 원본 포트 (내부망)
 
 ---
 
 ## 🚀 설치 방법
+
+### 사전 준비
+
+설치 전에 다음 정보를 준비하세요:
+- miniPC의 공인 IP 주소 (예: `curl ifconfig.me`로 확인)
+- LLM 서버의 내부 IP 주소
+- LLM API 포트 번호
+- 강력한 인증 토큰 (예: `openssl rand -base64 32`로 생성)
 
 ### 1. miniPC에 FRP 서버 설치
 
@@ -95,6 +103,24 @@ sudo bash scripts/install-frps.sh
 - systemd 서비스 등록 및 시작
 - 자동 재시작 설정
 
+**⚠️ 설치 후 반드시 다음을 수행하세요:**
+
+```bash
+# 설정 파일 편집
+sudo vi /etc/frp/frps.toml
+
+# 변경할 항목:
+# - bindPort: 원하는 제어 포트 (기본값: 7000)
+# - auth.token: 강력한 토큰으로 변경
+# - vhostHTTPPort: 원하는 HTTP 포트 (기본값: 8081)
+
+# 설정 파일 권한 설정
+sudo chmod 600 /etc/frp/frps.toml
+
+# 서비스 재시작
+sudo systemctl restart frps
+```
+
 ### 2. 사무실 LLM 서버에 FRP 클라이언트 설치
 
 ```bash
@@ -104,6 +130,26 @@ cd frps
 
 # 클라이언트 설치 스크립트 실행 (root 권한 필요)
 sudo bash scripts/install-frpc.sh
+```
+
+**⚠️ 설치 후 반드시 다음을 수행하세요:**
+
+```bash
+# 설정 파일 편집
+sudo vi /etc/frp/frpc.toml
+
+# 변경할 항목:
+# - serverAddr: miniPC의 공인 IP 주소
+# - serverPort: miniPC의 FRP 제어 포트
+# - auth.token: 서버와 동일한 토큰
+# - localIP: LLM 서버의 내부 IP
+# - localPort: LLM API 포트
+
+# 설정 파일 권한 설정
+sudo chmod 600 /etc/frp/frpc.toml
+
+# 서비스 재시작
+sudo systemctl restart frpc
 ```
 
 ---
@@ -116,27 +162,27 @@ sudo bash scripts/install-frpc.sh
 
 ```toml
 bindAddr = "0.0.0.0"
-bindPort = 7000
-auth.token = "deasea!1"
-vhostHTTPPort = 8081
+bindPort = CONTROL_PORT
+auth.token = "YOUR_SECRET_TOKEN"
+vhostHTTPPort = HTTP_PORT
 log.level = "info"
 log.maxDays = 7
 transport.heartbeatTimeout = 90
 ```
 
 **주요 설정:**
-- `bindPort`: 클라이언트 연결 포트 (7000)
-- `auth.token`: 인증 토큰 (클라이언트와 일치해야 함)
-- `vhostHTTPPort`: HTTP 프록시 포트 (8081)
+- `bindPort`: 클라이언트 연결 포트 (예: 7000)
+- `auth.token`: 인증 토큰 (클라이언트와 일치해야 함, 반드시 변경!)
+- `vhostHTTPPort`: HTTP 프록시 포트 (예: 8081)
 
 ### FRP 클라이언트 설정 (사무실 LLM 서버)
 
 파일: `/etc/frp/frpc.toml`
 
 ```toml
-serverAddr = "110.13.119.7"  # miniPC 공인 IP
-serverPort = 7000
-auth.token = "deasea!1"
+serverAddr = "YOUR_SERVER_IP"  # miniPC 공인 IP
+serverPort = CONTROL_PORT
+auth.token = "YOUR_SECRET_TOKEN"
 log.level = "info"
 log.maxDays = 7
 transport.heartbeatTimeout = 90
@@ -144,15 +190,15 @@ transport.heartbeatTimeout = 90
 [[proxies]]
 name = "llm-api"
 type = "http"
-localIP = "172.21.113.31"
-localPort = 4000
+localIP = "YOUR_LLM_SERVER_IP"
+localPort = LLM_PORT
 customDomains = ["llm.local"]
 ```
 
 **주요 설정:**
-- `serverAddr`: miniPC의 공인 IP 주소
-- `localIP`: LLM API 서버 IP (172.21.113.31)
-- `localPort`: LLM API 포트 (4000)
+- `serverAddr`: miniPC의 공인 IP 주소 (예: 110.13.119.7)
+- `localIP`: LLM API 서버 내부 IP (예: 172.21.113.31)
+- `localPort`: LLM API 포트 (예: 4000)
 - `customDomains`: 가상 호스트 이름 (Host 헤더 사용)
 
 ---
@@ -200,7 +246,7 @@ sudo journalctl -u frpc -f
 
 ```bash
 curl -H "Host: llm.local" \
-     http://110.13.119.7:8081/v1/models
+     http://YOUR_SERVER_IP:HTTP_PORT/v1/models
 ```
 
 #### 2. Chat Completion API 호출
@@ -208,19 +254,21 @@ curl -H "Host: llm.local" \
 ```bash
 curl -H "Host: llm.local" \
      -H "Content-Type: application/json" \
-     -H "Authorization: Bearer sk-Dwgun2yU_YQkounRcLEuGA" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
      -d '{
-       "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+       "model": "YOUR_MODEL_NAME",
        "messages": [
          {"role": "user", "content": "Hello, how are you?"}
        ],
        "max_tokens": 100,
        "temperature": 0.7
      }' \
-     http://110.13.119.7:8081/v1/chat/completions
+     http://YOUR_SERVER_IP:HTTP_PORT/v1/chat/completions
 ```
 
-**주의:** `Host: llm.local` 헤더는 필수입니다. FRP가 이를 통해 프록시를 식별합니다.
+**주의:** 
+- `Host: llm.local` 헤더는 필수입니다. FRP가 이를 통해 프록시를 식별합니다.
+- `YOUR_SERVER_IP`, `HTTP_PORT`, `YOUR_API_KEY`, `YOUR_MODEL_NAME`을 실제 값으로 변경하세요.
 
 ---
 
@@ -229,6 +277,12 @@ curl -H "Host: llm.local" \
 ### 전체 연결 테스트
 
 ```bash
+# 환경변수 설정
+export FRP_SERVER_IP="YOUR_SERVER_IP"
+export FRP_CONTROL_PORT="YOUR_CONTROL_PORT"
+export FRP_HTTP_PORT="YOUR_HTTP_PORT"
+
+# 테스트 실행
 cd ~/frps
 bash scripts/test-frp.sh
 ```
@@ -243,6 +297,12 @@ bash scripts/test-frp.sh
 ### LLM API 상세 테스트
 
 ```bash
+# 환경변수 설정
+export FRP_SERVER_IP="YOUR_SERVER_IP"
+export FRP_HTTP_PORT="YOUR_HTTP_PORT"
+export LLM_API_KEY="YOUR_API_KEY"
+
+# 테스트 실행
 cd ~/frps
 bash scripts/test-llm-api.sh
 ```
@@ -270,7 +330,7 @@ sudo journalctl -u frps -n 50
 **해결:**
 ```bash
 # 포트 사용 확인
-sudo netstat -tlnp | grep -E '7000|8081'
+sudo netstat -tlnp | grep -E 'CONTROL_PORT|HTTP_PORT'
 
 # 설정 파일 문법 확인
 /opt/frp/frps -c /etc/frp/frps.toml --verify
@@ -322,7 +382,7 @@ curl http://172.21.113.31:4000/v1/models
 **해결:**
 ```bash
 # Host 헤더 반드시 포함
-curl -H "Host: llm.local" http://110.13.119.7:8081/v1/models
+curl -H "Host: llm.local" http://YOUR_SERVER_IP:HTTP_PORT/v1/models
 ```
 
 ### 4. 로그 파일 크기 증가
@@ -365,7 +425,7 @@ systemctl status frps --no-pager -l
 
 ```bash
 # FRP 포트 리스닝 확인
-sudo netstat -tlnp | grep -E '7000|8081'
+sudo netstat -tlnp | grep -E 'CONTROL_PORT|HTTP_PORT'
 
 # 활성 연결 확인
 sudo netstat -tnp | grep frp
@@ -378,8 +438,28 @@ sudo netstat -tnp | grep frp
 ### 현재 보안 수준
 
 - ✅ 토큰 기반 인증 (`auth.token`)
-- ✅ 특정 포트만 오픈 (7000, 8081)
+- ✅ 특정 포트만 오픈 (제어 포트, HTTP 포트)
 - ⚠️ HTTP 통신 (암호화 없음)
+
+### 보안 권장사항
+
+1. **강력한 인증 토큰 사용**: 기본값 대신 복잡한 토큰 생성
+   ```bash
+   # 랜덤 토큰 생성 예시
+   openssl rand -base64 32
+   ```
+
+2. **설정 파일 권한 설정**:
+   ```bash
+   sudo chmod 600 /etc/frp/frps.toml
+   sudo chmod 600 /etc/frp/frpc.toml
+   ```
+
+3. **방화벽 설정**: 필요한 IP만 접근 허용
+   ```bash
+   # UFW 예시
+   sudo ufw allow from YOUR_OFFICE_IP to any port CONTROL_PORT
+   ```
 
 ### 향후 개선 계획
 

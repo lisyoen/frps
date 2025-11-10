@@ -3,11 +3,11 @@
 # Location: /etc/frp/frpc.toml
 
 # Server connection
-serverAddr = "110.13.119.7"  # miniPC public IP
-serverPort = 7000
+serverAddr = "YOUR_SERVER_PUBLIC_IP"  # miniPC public IP (예: 110.13.119.7)
+serverPort = 7000  # FRP 서버의 bindPort와 동일
 
 # Authentication token (must match server)
-auth.token = "deasea!1"
+auth.token = "CHANGE_ME_TO_SECURE_TOKEN"  # ⚠️ 서버와 동일한 토큰 사용!
 
 # Log configuration
 log.level = "info"
@@ -20,8 +20,8 @@ transport.heartbeatTimeout = 90
 [[proxies]]
 name = "llm-api"
 type = "http"
-localIP = "172.21.113.31"
-localPort = 4000
+localIP = "YOUR_LLM_SERVER_IP"  # LLM 서버 내부 IP (예: 172.21.113.31)
+localPort = 4000  # LLM API 포트 (실제 포트로 변경)
 customDomains = ["llm.local"]
 # subdomain = "llm"  # Alternative: use subdomain instead of custom domain
 

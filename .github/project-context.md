@@ -32,9 +32,9 @@
 [회사 내부망]                [인터넷]              [집]
 ┌─────────────────┐                        ┌──────────────────┐
 │ LLM 서버         │                        │ miniPC           │
-│ 172.21.113.31   │                        │ 192.168.50.196   │
-│ Port: 4000      │                        │ (110.13.119.7)   │
-│                 │                        │ Port: 7000,8081  │
+│ 172.21.xxx.xxx  │                        │ 192.168.50.xxx   │
+│ Port: xxxx      │                        │ (xxx.xxx.xxx.xxx)│
+│                 │                        │ Port: xxxx,xxxx  │
 │ frpc (client)   │─── Outbound 연결 ────→│ frps (server)    │
 └─────────────────┘                        └─────────┬────────┘
                                                      │
@@ -59,32 +59,32 @@
 
 ### 회사 LLM 서버 (Spark)
 - **GPU**: DGX Spark
-- **내부 IP**: 172.21.113.31
-- **API 포트**: 4000
+- **내부 IP**: 172.21.xxx.xxx (보안상 마스킹)
+- **API 포트**: xxxx (보안상 마스킹)
 - **모델**: Qwen/Qwen3-Coder-30B-A3B-Instruct
 - **용도**: 실 업무 코드 작성, 테스트 및 코드 보조
 - **특징**: 30B 파라미터 기반, 코드 생성 특화 모델
 - **API 스택**: LiteLLM → vLLM
 
-### API 연결 정보
+### API 연결 정보 (예시 - 실제 값으로 변경 필요)
 ```yaml
 provider: openai
 model: Qwen/Qwen3-Coder-30B-A3B-Instruct
-apiKey: sk-Dwgun2yU_YQkounRcLEuGA
-apiBase: http://172.21.113.31:4000/v1
+apiKey: YOUR_API_KEY
+apiBase: http://YOUR_LLM_SERVER_IP:YOUR_LLM_PORT/v1
 ```
 
-### FRP를 통한 외부 접근
+### FRP를 통한 외부 접근 (예시)
 ```bash
 # 집에서 LLM API 호출
 curl -H "Host: llm.local" \
      -H "Content-Type: application/json" \
-     -H "Authorization: Bearer sk-Dwgun2yU_YQkounRcLEuGA" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
      -d '{
-       "model": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+       "model": "YOUR_MODEL_NAME",
        "messages": [{"role": "user", "content": "Hello!"}]
      }' \
-     http://110.13.119.7:8081/v1/chat/completions
+     http://YOUR_SERVER_IP:YOUR_HTTP_PORT/v1/chat/completions
 ```
 
 ## 기술 스택
@@ -130,20 +130,20 @@ frps/
 
 ## 네트워크 설정
 
-### 포트 구성
-- **7000**: FRP 제어 포트 (frpc ↔ frps 통신)
-- **8081**: HTTP 프록시 포트 (외부 → LLM API)
-- **4000**: LLM API 원본 포트 (내부망 전용)
+### 포트 구성 (예시 - 실제 포트는 변경 가능)
+- **CONTROL_PORT**: FRP 제어 포트 (frpc ↔ frps 통신) - 예: 7000
+- **HTTP_PORT**: HTTP 프록시 포트 (외부 → LLM API) - 예: 8081
+- **LLM_PORT**: LLM API 원본 포트 (내부망 전용) - 예: 4000
 
-### IP 주소
-- **miniPC 내부 IP**: 192.168.50.196
-- **miniPC 공인 IP**: 110.13.119.7
-- **LLM 서버 IP**: 172.21.113.31 (회사 내부망)
+### IP 주소 (보안상 마스킹)
+- **miniPC 내부 IP**: 192.168.50.xxx
+- **miniPC 공인 IP**: xxx.xxx.xxx.xxx
+- **LLM 서버 IP**: 172.21.xxx.xxx (회사 내부망)
 
 ### 보안
-- **인증 방식**: Token 기반 (auth.token = "deasea!1")
+- **인증 방식**: Token 기반 (auth.token - 반드시 강력한 토큰 사용)
 - **통신 프로토콜**: HTTP (현재), HTTPS (향후 계획)
-- **방화벽**: 포트 7000, 8081만 오픈
+- **방화벽**: 제어 포트, HTTP 포트만 오픈
 
 ## 개발 워크플로우
 
@@ -217,17 +217,20 @@ sudo netstat -tnp | grep frp
 curl ifconfig.me
 ```
 
-### LLM API 테스트
+### LLM API 테스트 (환경변수 사용)
 ```bash
 # 모델 목록 조회
-curl -H "Host: llm.local" http://110.13.119.7:8081/v1/models
+export FRP_SERVER_IP="YOUR_SERVER_IP"
+export FRP_HTTP_PORT="YOUR_HTTP_PORT"
+curl -H "Host: llm.local" http://${FRP_SERVER_IP}:${FRP_HTTP_PORT}/v1/models
 
 # Chat Completion
+export LLM_API_KEY="YOUR_API_KEY"
 curl -H "Host: llm.local" \
      -H "Content-Type: application/json" \
-     -H "Authorization: Bearer sk-Dwgun2yU_YQkounRcLEuGA" \
-     -d '{"model":"Qwen/Qwen3-Coder-30B-A3B-Instruct","messages":[{"role":"user","content":"ping"}]}' \
-     http://110.13.119.7:8081/v1/chat/completions
+     -H "Authorization: Bearer ${LLM_API_KEY}" \
+     -d '{"model":"YOUR_MODEL","messages":[{"role":"user","content":"ping"}]}' \
+     http://${FRP_SERVER_IP}:${FRP_HTTP_PORT}/v1/chat/completions
 ```
 
 ## 주요 의사결정 사항

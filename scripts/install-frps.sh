@@ -69,12 +69,13 @@ else
     cat > ${CONFIG_DIR}/frps.toml << 'EOF'
 bindAddr = "0.0.0.0"
 bindPort = 7000
-auth.token = "deasea!1"
+auth.token = "CHANGE_ME_TO_SECURE_TOKEN"
 vhostHTTPPort = 8081
 log.level = "info"
 log.maxDays = 7
 transport.heartbeatTimeout = 90
 EOF
+    echo -e "${RED}⚠️  WARNING: Please change the default auth.token in ${CONFIG_DIR}/frps.toml${NC}"
 fi
 
 # Create systemd service

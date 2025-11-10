@@ -1,0 +1,86 @@
+# Fast Reverse Proxy server — Project Goal
+## 1. 프로젝트 개요
+- **원본 리포지토리:** [https://github.com/lisyoen/frps](https://github.com/lisyoen/frps)  
+- **개발환경:** `.github/개발환경_20251025.prompt.txt`
+
+---
+
+## 2. 프로젝트 목표
+
+### 2.1 목적
+본 프로젝트는 **회사 내부망의 LLM 서버를 외부(집)에서 안전하게 호출**할 수 있도록
+역방향 HTTP 프록시 환경을 구축하는 것을 목표로 한다.  
+회사는 외부에서 직접 접근할 수 없는 폐쇄망 구조이며, outbound 트래픽만 허용되어 있기 때문에
+표준 SSH 터널이나 VPN 방식은 사용할 수 없다.
+
+이를 해결하기 위해 **FRP(Fast Reverse Proxy)** 기반의 역방향 터널링을 구현하여,
+사무실 LLM 서버가 집의 miniPC로 아웃바운드 연결을 맺고,
+miniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
+
+---
+
+### 2.2 시스템 구성 요약
+
+| 구분 | 역할 | 비고 |
+|------|------|------|
+| **사무실 LLM 서버** | FRP 클라이언트(`frpc`) 실행, miniPC로 역방향 연결 | GPU DGX Spark 기반 |
+| **miniPC (집)** | FRP 서버(`frps`) 구동, 외부 접속 중계 | 공개 포트 7000(제어), 8081(HTTP) |
+| **집 PC** | HTTP 요청을 통해 miniPC를 통해 LLM API 호출 | 개발·테스트 환경 |
+
+---
+
+### 2.3 LLM 서버 사양
+- **GPU:** DGX Spark  
+- **LLM Endpoint:** 172.21.113.31  
+- **모델:** Qwen3-Coder-30B-A3B-Instruct  
+- **용도:** 실 업무 코드 작성, 테스트 및 코드 보조  
+- **특징:** 30B 파라미터 기반, 코드 생성 특화 모델  
+
+> API 연결 정보 (보안을 위해 일부 마스킹됨)  
+> provider: `openai`  
+> model: `Qwen/Qwen3-Coder-30B-A3B-Instruct`  
+> apiKey: `sk-Dwgun2yU_YQkounRcLEuGA`  
+> apiBase: `http://172.21.113.31:4000/v1`
+
+---
+
+### 2.4 기술 목표
+1. **역방향 HTTP 프록시 구축**
+   - 사무실 LLM 서버 → miniPC 방향의 아웃바운드 연결(7000)
+   - miniPC → 집 PC 방향의 HTTP 응답(8081)
+2. **LLM API 중계**
+   - miniPC의 8081 포트를 통해 LLM API를 외부에서 접근 가능하도록 제공
+   - 실제 호출 예:  
+     ```bash
+     curl -i http://<miniPC공인IP>:8081/v1/chat/completions \
+       -H "Content-Type: application/json" \
+       -d '{"model":"Qwen3-Coder-30B-A3B-Instruct","messages":[{"role":"user","content":"ping"}]}'
+     ```
+3. **보안 통신**
+   - 인증 토큰(`deasea!1`) 기반 통신 제어
+   - 향후 HTTPS(8443) 적용 및 접근 제어 프록시 추가 예정
+4. **운영 자동화**
+   - `frps`, `frpc` 모두 systemd 서비스로 등록하여 자동 재시작 및 모니터링 구성
+5. **지속적 점검**
+   - 로그 수집 및 서비스 상태 모니터링으로 안정성 확보
+
+---
+
+### 2.5 기대효과
+- 회사 내부 LLM 자원을 외부에서도 안전하게 활용 가능
+- SSH/VPN 없이 HTTP 기반 터널링을 통한 빠른 접근
+- 코드 테스트 및 AI 개발 효율 향상
+- LLM 인프라 활용 범위 확대 및 자원 재사용 극대화
+
+---
+
+### 2.6 향후 계획
+- HTTPS 기반 암호화 적용
+- 토큰 인증 강화를 위한 OAuth2 / JWT 도입 검토
+- miniPC → Cloudflare Tunnel 연동으로 DDNS 불필요화
+- 자동 복구 모듈(systemd + health check script) 추가
+
+---
+
+**작성자:** 이창연  
+**작성일:** 2025-11-11  

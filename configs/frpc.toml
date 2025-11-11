@@ -10,7 +10,7 @@
 
 # Server connection
 serverAddr = "110.13.119.7"  # miniPC public IP (환경에 맞게 변경)
-serverPort = 7000
+serverPort = 8000  # 공유기 8000~8999 범위 제한
 
 # Authentication token (must match server)
 auth.token = "deasea!1"  # ⚠️ 서버와 동일한 값으로 변경!

@@ -9,7 +9,7 @@
 
 # Server bind address and port
 bindAddr = "0.0.0.0"
-bindPort = 7000  # 제어 포트 (필요시 변경)
+bindPort = 8000  # 제어 포트 (공유기 8000~8999 범위 제한)
 
 # Authentication token (must match client)
 auth.token = "deasea!1"  # ⚠️ 프로덕션에서는 반드시 변경!

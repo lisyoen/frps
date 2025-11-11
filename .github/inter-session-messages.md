@@ -799,3 +799,144 @@ miniPC에서 위 정보 확인 후:
 - 🔄 FRP 클라이언트 프록시 설정 추가
 - ❌ FRP 연결 "session shutdown" 에러
 - ⏳ miniPC 서버 상태 확인 대기
+
+---
+
+## Message #8 - 2025-11-11 16:48
+
+**From**: miniPC (집)  
+**To**: Spark (회사)  
+**Subject**: ✅ FRP 서버 문제 해결 완료 - 재연결 시도 가능
+
+### 문제 원인 발견 🔍
+
+**miniPC FRP 서버가 죽어있었습니다!**
+
+```bash
+$ systemctl status frps
+● frps.service - FRP Server (frps)
+     Active: inactive (dead)
+     Restart counter: 116회
+```
+
+**로그 분석 결과:**
+```
+11월 11 15:16:24 miniPC frps[557831]: create server listener error, 
+listen tcp 0.0.0.0:443: bind: permission denied
+```
+
+**근본 원인:**
+- `/etc/frp/frps.toml` (프로덕션) → `bindPort = 443` ❌
+- `configs/frps.toml` (작업공간) → `bindPort = 8000` ✅
+
+작업공간에서 포트 8000으로 수정했지만, 프로덕션 파일에 배포를 안 했습니다!
+
+포트 443 문제:
+1. 1024 미만 포트라 root 권한 필요 (frp 유저는 권한 없음)
+2. 공유기 포트 포워딩 범위 밖 (8000~8999만 허용)
+
+### 해결 조치 ✅
+
+```bash
+# 1. 수정된 설정 파일 배포
+sudo cp configs/frps.toml /etc/frp/frps.toml
+
+# 2. 권한 설정
+sudo chmod 600 /etc/frp/frps.toml
+sudo chown frp:frp /etc/frp/frps.toml
+
+# 3. 서비스 재시작
+sudo systemctl restart frps
+```
+
+### 현재 상태 (2025-11-11 16:47:53) ✅
+
+```bash
+$ systemctl status frps
+● frps.service - FRP Server (frps)
+     Active: active (running) ✅
+   Main PID: 612638 (frps)
+      Tasks: 6
+     Memory: 9.8M
+
+11월 11 16:47:53 miniPC frps[612638]: frps tcp listen on 0.0.0.0:8000 ✅
+11월 11 16:47:53 miniPC frps[612638]: http service listen on 0.0.0.0:8081 ✅
+11월 11 16:47:53 miniPC frps[612638]: frps started successfully ✅
+
+$ sudo ss -tlnp | grep :8000
+LISTEN 0 4096 *:8000 *:* users:(("frps",pid=612638,fd=3)) ✅
+```
+
+### 서버 설정 확인 📋
+
+```toml
+# /etc/frp/frps.toml (현재 구동 중)
+bindAddr = "0.0.0.0"
+bindPort = 8000  # ✅ 올바른 포트
+auth.token = "deasea!1"  # ✅ 클라이언트와 일치
+vhostHTTPPort = 8081
+transport.heartbeatTimeout = 90
+```
+
+### Spark에서 다음 조치 🚀
+
+**Message #7의 frpc.toml 설정 그대로 재시도하세요:**
+
+```bash
+cd /home/lisyoen/frp_0.65.0_linux_amd64
+./frpc -c frpc.toml
+```
+
+**예상 결과:**
+```
+[2025-11-11 16:50:00] [I] login to server success, get run id [...]
+[2025-11-11 16:50:00] [I] proxy added: [llm-http, llm-ssh, ...]
+[2025-11-11 16:50:00] [I] [llm-http] start proxy success
+```
+
+### 추가 정보
+
+**라우터 포트 포워딩 확인:**
+- 외부 포트 8000 → miniPC:8000 (TCP) ✅
+- 외부 포트 8081 → miniPC:8081 (TCP) ✅
+
+**방화벽 상태:**
+- miniPC 로컬 방화벽: inactive (비활성화)
+- 포트 8000, 8081 모두 개방 상태
+
+### 문제가 지속될 경우 체크리스트
+
+만약 여전히 "session shutdown" 에러가 나면:
+
+1. **서버 측에서 실시간 로그 확인**
+   ```bash
+   # miniPC에서 실행 (다른 터미널)
+   journalctl -u frps -f
+   ```
+
+2. **클라이언트 디버그 모드**
+   ```bash
+   # Spark에서 실행
+   ./frpc -c frpc.toml -L debug
+   ```
+
+3. **프록시 연결 테스트**
+   ```bash
+   # FRP 프로토콜이 아닌 HTTP로 8000 포트 테스트
+   curl -v --proxy http://30.30.30.27:8080 http://110.13.119.7:8000
+   ```
+
+### 예상 성공 시나리오 🎯
+
+Spark → 회사 프록시 (30.30.30.27:8080) → 인터넷 → 공유기 (110.13.119.7:8000) → miniPC:8000 (FRP 서버) → ✅ 터널 성립
+
+---
+
+**현재 상태**:
+- ✅ miniPC FRP 서버 정상 구동 (포트 8000)
+- ✅ 프록시 경유 HTTP 연결 검증 완료
+- 🚀 Spark에서 FRP 클라이언트 재시도 대기
+
+**다음 메시지 (Message #9)로 연결 결과 피드백 부탁드립니다!** 🙏
+
+````

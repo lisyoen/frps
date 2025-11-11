@@ -74,16 +74,17 @@ def root():
     }
 
 if __name__ == '__main__':
+    PORT = 8089  # 8088은 Guacamole이 사용 중
     print("=" * 60)
     print("HTTP Tunnel Server")
     print("=" * 60)
-    print(f"Listening: 0.0.0.0:8088")
+    print(f"Listening: 0.0.0.0:{PORT}")
     print(f"Target: {LLM_BASE_URL}")
     print("=" * 60)
     
     app.run(
         host='0.0.0.0',
-        port=8088,
+        port=PORT,
         debug=False,
         threaded=True
     )

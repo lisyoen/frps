@@ -43,17 +43,33 @@ git message 는 한국어로 생성해야 합니다.
      - **집에서**: MainPC(192.168.50.102)에서 SSH Remote 접속
        - `$SSH_CLIENT` 환경 변수로 확인: `192.168.50.102`
        - VSCode Remote SSH 사용
-     - **회사에서**: Guacamole을 통한 로컬 GUI 접속
-       - `$DISPLAY` 환경 변수 존재 (`:0` 또는 `:1`)
-       - VSCode 직접 실행
+     - **회사에서**: Guacamole을 통한 xRDP 로컬 GUI 접속
+       - `$XRDP_SESSION` 환경 변수 존재 (값: `1`)
+       - `$DISPLAY` 환경 변수 높은 번호 (예: `:10.0`)
+       - VSCode 직접 실행 (로컬 GUI)
    - 확인 명령어:
      ```bash
      # SSH 접속 확인
-     echo $SSH_CLIENT  # 값 있으면 Remote SSH
+     echo $SSH_CLIENT  # 값 있으면 Remote SSH (예: 192.168.50.102)
      
-     # GUI 접속 확인
-     echo $DISPLAY     # 값 있으면 로컬 GUI
+     # Guacamole (xRDP) 접속 확인
+     echo $XRDP_SESSION  # 값이 "1"이면 Guacamole
+     
+     # 종합 판단
+     if [ -n "$XRDP_SESSION" ]; then
+         echo "Guacamole 접속 (회사)"
+     elif [ -n "$SSH_CLIENT" ]; then
+         echo "SSH Remote 접속 (집)"
+     else
+         echo "로컬 터미널"
+     fi
      ```
+   
+   - **Guacamole 접속 시 추가 환경 변수**:
+     - `XRDP_SESSION=1`
+     - `XRDP_SOCKET_PATH=/run/xrdp/sockdir`
+     - `PULSE_SCRIPT=/etc/xrdp/pulse/default.pa`
+     - `XRDP_PULSE_SINK_SOCKET`, `XRDP_PULSE_SOURCE_SOCKET` (오디오)
    
 4. **장비별 특성 안내**
    - **miniPC (192.168.50.196)**: 
@@ -91,7 +107,7 @@ git message 는 한국어로 생성해야 합니다.
 ```
 ✅ Git pull 완료
 ✅ 현재 장비: miniPC (192.168.50.196)
-   📍 접속 방식: 회사에서 Guacamole 로컬 GUI
+   📍 접속 방식: 회사에서 Guacamole (xRDP) 로컬 GUI
    - Docker 사용 가능
    - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
    - 집 네트워크 (공인 IP: 110.13.119.7)

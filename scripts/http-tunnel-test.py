@@ -11,8 +11,8 @@ PROXIES = {
     'https': 'http://30.30.30.27:8080'
 }
 
-# miniPC HTTP 터널 (Guacamole 옆 포트 예상)
-TUNNEL_URL = "http://110.13.119.7:8088"
+# miniPC HTTP 터널 (실제 실행 포트)
+TUNNEL_URL = "http://110.13.119.7:8089"
 
 def test_tunnel():
     print("=" * 60)

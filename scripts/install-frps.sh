@@ -1,5 +1,5 @@
 #!/bin/bash
-# FRP Server Installation Script (miniPC)
+# FRP Server Installation Script (MiniPC)
 # This script downloads, installs, and configures frps as a systemd service
 
 set -e  # Exit on error

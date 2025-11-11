@@ -3,13 +3,13 @@
 # Location: /etc/frp/frpc.toml
 #
 # ⚠️ 설정 전 확인사항:
-# - serverAddr: miniPC의 공인 IP로 설정 (curl ifconfig.me로 확인)
+# - serverAddr: MiniPC의 공인 IP로 설정 (curl ifconfig.me로 확인)
 # - auth.token: 서버(frps)와 동일한 값으로 설정
 # - localIP: LLM 서버의 실제 내부 IP로 설정
 # - localPort: LLM API의 실제 포트로 설정
 
 # Server connection
-serverAddr = "110.13.119.7"  # miniPC public IP (환경에 맞게 변경)
+serverAddr = "110.13.119.7"  # MiniPC public IP (환경에 맞게 변경)
 serverPort = 8000  # 공유기 8000~8999 범위 제한
 
 # Authentication

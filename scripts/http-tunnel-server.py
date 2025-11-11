@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Simple HTTP Tunnel Server
-miniPC에서 실행하여 Spark의 HTTP 요청을 LLM(172.21.113.31:4000)으로 프록시
+MiniPC에서 실행하여 Spark의 HTTP 요청을 LLM(172.21.113.31:4000)으로 프록시
 """
 from flask import Flask, request, Response
 import requests

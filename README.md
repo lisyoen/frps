@@ -47,7 +47,7 @@
          │ frpc (client)        
          │ Outbound →           
          └──────────────────────────→  ┌─────────────────┐
-                                       │ miniPC          │
+                                       │ MiniPC          │
                                        │ xxx.xxx.xxx.xxx │
                                        │ frps (server)   │
                                        │ Port: xxxx,xxxx │
@@ -64,7 +64,7 @@
 
 | 구분 | 호스트 | 역할 | 소프트웨어 |
 |------|--------|------|------------|
-| **Server** | miniPC (집) | FRP 서버, 외부 접속 중계 | frps |
+| **Server** | MiniPC (집) | FRP 서버, 외부 접속 중계 | frps |
 | **Client** | LLM 서버 (회사) | FRP 클라이언트, 역방향 연결 | frpc |
 | **User** | 집 PC | HTTP 요청 발신 | curl, Postman 등 |
 
@@ -81,14 +81,14 @@
 ### 사전 준비
 
 설치 전에 다음 정보를 준비하세요:
-- miniPC의 공인 IP 주소 (예: `curl ifconfig.me`로 확인)
+- MiniPC의 공인 IP 주소 (예: `curl ifconfig.me`로 확인)
 - LLM 서버의 내부 IP 주소
 - LLM API 포트 번호
 
 **참고**: 저장소에 포함된 설정 파일(`configs/*.toml`)은 실제 값이 설정되어 있어 바로 사용 가능합니다.
 환경에 맞게 수정이 필요한 경우에만 편집하세요.
 
-### 1. miniPC에 FRP 서버 설치
+### 1. MiniPC에 FRP 서버 설치
 
 ```bash
 # 저장소 클론
@@ -141,7 +141,7 @@ sudo cat /etc/frp/frpc.toml
 
 # 다른 환경에서 사용하는 경우 수정
 sudo vi /etc/frp/frpc.toml
-# - serverAddr: miniPC의 공인 IP
+# - serverAddr: MiniPC의 공인 IP
 # - localIP: LLM 서버의 내부 IP
 # - localPort: LLM API 포트
 
@@ -153,7 +153,7 @@ sudo systemctl restart frpc
 
 ## ⚙️ 설정
 
-### FRP 서버 설정 (miniPC)
+### FRP 서버 설정 (MiniPC)
 
 파일: `/etc/frp/frps.toml`
 
@@ -177,7 +177,7 @@ transport.heartbeatTimeout = 90
 파일: `/etc/frp/frpc.toml`
 
 ```toml
-serverAddr = "YOUR_SERVER_IP"  # miniPC 공인 IP
+serverAddr = "YOUR_SERVER_IP"  # MiniPC 공인 IP
 serverPort = CONTROL_PORT
 auth.token = "YOUR_SECRET_TOKEN"
 log.level = "info"
@@ -193,7 +193,7 @@ customDomains = ["llm.local"]
 ```
 
 **주요 설정:**
-- `serverAddr`: miniPC의 공인 IP 주소 (예: 110.13.119.7)
+- `serverAddr`: MiniPC의 공인 IP 주소 (예: 110.13.119.7)
 - `localIP`: LLM API 서버 내부 IP (예: 172.21.113.31)
 - `localPort`: LLM API 포트 (예: 4000)
 - `customDomains`: 가상 호스트 이름 (Host 헤더 사용)
@@ -202,7 +202,7 @@ customDomains = ["llm.local"]
 
 ## 🎮 사용 방법
 
-### 서비스 제어 (miniPC)
+### 서비스 제어 (MiniPC)
 
 ```bash
 # 서비스 시작
@@ -344,13 +344,13 @@ sudo journalctl -u frpc -n 50
 ```
 
 **가능한 원인:**
-- miniPC 공인 IP가 변경됨
+- MiniPC 공인 IP가 변경됨
 - 인증 토큰 불일치
 - 방화벽 차단
 
 **해결:**
 ```bash
-# miniPC 공인 IP 확인 (miniPC에서 실행)
+# MiniPC 공인 IP 확인 (MiniPC에서 실행)
 curl ifconfig.me
 
 # frpc.toml의 serverAddr 업데이트
@@ -400,7 +400,7 @@ sudo systemctl restart frpc
 ### 실시간 로그 모니터링
 
 ```bash
-# FRP 서버 로그 (miniPC)
+# FRP 서버 로그 (MiniPC)
 sudo journalctl -u frps -f
 
 # FRP 클라이언트 로그 (사무실)

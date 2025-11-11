@@ -8,7 +8,7 @@
 
 ## 목표
 
-회사 방화벽(DPI)을 우회하여 집(miniPC)에서 회사 내부망 LLM 서버(172.21.113.31:4000)에 접근할 수 있는 HTTP 터널 시스템 설계
+회사 방화벽(DPI)을 우회하여 집(MiniPC)에서 회사 내부망 LLM 서버(172.21.113.31:4000)에 접근할 수 있는 HTTP 터널 시스템 설계
 
 ---
 
@@ -23,7 +23,7 @@
 **Spark (Linux) 테스트:**
 ```python
 # Python socket으로 HTTP CONNECT 터널 성공
-프록시 경유 → miniPC:8089 → HTTP/1.1 200 Connection established
+프록시 경유 → MiniPC:8089 → HTTP/1.1 200 Connection established
 ```
 
 **업무 PC (Windows 11) 테스트:**
@@ -56,7 +56,7 @@ Target: 110.13.119.7:8089
          │ HTTP                                              │
          ↓                                                   │ HTTP CONNECT
 ┌────────────────────┐                                      │ (터널 유지)
-│     miniPC          │                                      │
+│     MiniPC          │                                      │
 │  (터널 서버)        │ ←────────────────────────────────────┘
 │                     │
 │  8089: 커맨드 채널  │ ←─── SubPC 영구 연결 (명령 수신)
@@ -70,17 +70,17 @@ Target: 110.13.119.7:8089
 ```
 
 ### 포트 구성
-- **8089**: 커맨드 채널 (SubPC → miniPC 영구 연결)
+- **8089**: 커맨드 채널 (SubPC → MiniPC 영구 연결)
 - **8090**: 데이터 채널 (다중 HTTP 연결)
 
 ### 핵심 프로토콜
-**NEW_CONN (miniPC → SubPC):**
+**NEW_CONN (MiniPC → SubPC):**
 ```
 NEW_CONN <client_ip> <target_host>:<target_port>\n
 예: NEW_CONN 192.168.50.100 172.21.113.31:4000\n
 ```
 
-**READY (SubPC → miniPC):**
+**READY (SubPC → MiniPC):**
 ```
 READY <client_ip>\n
 예: READY 192.168.50.100\n
@@ -112,14 +112,14 @@ READY <client_ip>\n
 
 ### Phase 1: 개발 (업무 PC)
 ```
-업무PC(Windows 11, 개발) → 프록시 → miniPC(서버)
+업무PC(Windows 11, 개발) → 프록시 → MiniPC(서버)
 ```
 - VSCode로 클라이언트 개발
 - 실시간 테스트 및 디버깅
 
 ### Phase 2: 배포 (SubPC)
 ```
-SubPC(Windows 11, 프로덕션) → 프록시 → miniPC(서버)
+SubPC(Windows 11, 프로덕션) → 프록시 → MiniPC(서버)
 ```
 - 항상 켜둠
 - Git pull로 코드 배포
@@ -129,7 +129,7 @@ SubPC(Windows 11, 프로덕션) → 프록시 → miniPC(서버)
 frps/
 ├── .github/
 │   └── tunnel-protocol.md
-├── tunnel-server/          # miniPC (Ubuntu Mint)
+├── tunnel-server/          # MiniPC (Ubuntu Mint)
 │   ├── tunnel_server.py
 │   ├── requirements.txt
 │   └── config.yaml
@@ -145,7 +145,7 @@ frps/
 
 ## 다음 단계
 
-### 1. 서버 구현 (miniPC)
+### 1. 서버 구현 (MiniPC)
 - [ ] `tunnel-server/tunnel_server.py` 생성
 - [ ] 커맨드 채널 구현 (8089 포트)
 - [ ] 데이터 채널 구현 (8090 포트)
@@ -161,7 +161,7 @@ frps/
 
 ### 3. 테스트
 - [ ] 로컬 테스트 (프록시 없이)
-- [ ] 업무PC → miniPC 테스트 (프록시 경유)
+- [ ] 업무PC → MiniPC 테스트 (프록시 경유)
 - [ ] LLM API 실제 요청 테스트
 
 ### 4. 배포
@@ -209,13 +209,13 @@ if client_ip in pending_clients:
 ## 참고 사항
 
 ### 테스트 환경
-- **miniPC**: Ubuntu Mint 22, Python 3.12.3
+- **MiniPC**: Ubuntu Mint 22, Python 3.12.3
 - **SubPC**: Windows 11, Python 3.11
 - **업무PC**: Windows 11, Python 3.11
 - **회사 프록시**: 30.30.30.27:8080
 
 ### 네트워크 정보
-- miniPC 공인 IP: 110.13.119.7
+- MiniPC 공인 IP: 110.13.119.7
 - 라우터 포트 포워딩: 8000~8999
 - 회사 LLM: 172.21.113.31:4000
 

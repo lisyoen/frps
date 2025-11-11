@@ -20,7 +20,7 @@ echo "Control Port: ${FRP_CONTROL_PORT}"
 echo "HTTP Port: ${FRP_HTTP_PORT}"
 echo ""
 
-# Test 1: Check if frps service is running (on miniPC)
+# Test 1: Check if frps service is running (on MiniPC)
 echo -e "${YELLOW}[1/5] Checking FRP Server status...${NC}"
 if systemctl is-active --quiet frps 2>/dev/null; then
     echo -e "${GREEN}✓ FRP Server (frps) is running${NC}"

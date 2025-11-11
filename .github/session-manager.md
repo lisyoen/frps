@@ -11,7 +11,7 @@
 - **상세**: [session-20251111-002-frpc-deploy-at-office.md](sessions/session-20251111-002-frpc-deploy-at-office.md)
 - **목적**: 
   - 회사 LLM 서버에서 Git 클론 후 frpc 설치
-  - miniPC frps와 연결 테스트
+  - MiniPC frps와 연결 테스트
   - 집에서 회사 LLM API 접근 확인
 
 ### 2. session-20251111-001-frp-setup ✅

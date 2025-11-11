@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Reverse HTTP Tunnel Server (Spark에서 실행)
-회사 Spark에서 실행하여 miniPC의 HTTP 요청을 회사 LLM(172.21.113.31:4000)으로 프록시
+회사 Spark에서 실행하여 MiniPC의 HTTP 요청을 회사 LLM(172.21.113.31:4000)으로 프록시
 """
 from flask import Flask, request, Response
 import requests
@@ -27,7 +27,7 @@ def health():
 
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def proxy(path):
-    """miniPC의 요청을 회사 LLM 서버로 프록시"""
+    """MiniPC의 요청을 회사 LLM 서버로 프록시"""
     url = f"{LLM_BASE_URL}/{path}"
     
     app.logger.info(f"Proxy: {request.method} {url}")
@@ -44,7 +44,7 @@ def proxy(path):
             timeout=120  # LLM 응답 대기 시간
         )
         
-        # LLM 응답을 miniPC로 전달
+        # LLM 응답을 MiniPC로 전달
         excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
         headers = [(k, v) for k, v in resp.raw.headers.items() if k.lower() not in excluded_headers]
         
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     print(f"Listening: 0.0.0.0:8090")
     print(f"Local IP: {local_ip}")
     print(f"Target: {LLM_BASE_URL}")
-    print(f"Access from miniPC: http://{local_ip}:8090")
+    print(f"Access from MiniPC: http://{local_ip}:8090")
     print("=" * 60)
     
     app.run(

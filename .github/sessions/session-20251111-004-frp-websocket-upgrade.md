@@ -5,7 +5,7 @@
 - **세션 ID**: session-20251111-004-frp-websocket-upgrade
 - **날짜**: 2025-11-11
 - **상태**: 대기 중 ⏸️
-- **작업자**: 집 miniPC에서 작업 예정
+- **작업자**: 집 MiniPC에서 작업 예정
 - **이전 세션**: session-20251111-003-frps-install-minipc (완료)
 
 ## 작업 목적
@@ -19,10 +19,10 @@ FRP를 WebSocket Secure(wss) 프로토콜로 전환하여 회사 방화벽 우�
 ### 완료된 작업
 - ✅ session-20251111-001: FRP 설정 파일 작성
 - ✅ session-20251111-002: 회사 Spark FRP 클라이언트 설치
-- ✅ session-20251111-003: miniPC FRP 서버 설치 (TCP, 포트 8000/8081)
+- ✅ session-20251111-003: MiniPC FRP 서버 설치 (TCP, 포트 8000/8081)
 
 ### 문제점
-- ❌ 회사 Spark → miniPC 연결 실패 (포트 8000)
+- ❌ 회사 Spark → MiniPC 연결 실패 (포트 8000)
 - 🔍 원인 분석: 포트 문제가 아닌 **프로토콜 수준 차단**
   - 회사 방화벽이 DPI로 FRP 핸드셰이크 패턴 탐지
   - SSH, RDP처럼 프로토콜 시그니처로 차단
@@ -37,8 +37,8 @@ FRP를 WebSocket Secure(wss) 프로토콜로 전환하여 회사 방화벽 우�
 
 ## 작업 환경
 
-### 집 miniPC
-- **Hostname**: miniPC
+### 집 MiniPC
+- **Hostname**: MiniPC
 - **OS**: Linux (Ubuntu-based)
 - **내부 IP**: 192.168.50.196
 - **공인 IP**: 110.13.119.7
@@ -97,7 +97,7 @@ nano configs/frps.toml
 
 **변경 후 설정:**
 ```toml
-# FRP Server Configuration (miniPC)
+# FRP Server Configuration (MiniPC)
 # Version: v0.65.0
 # Location: /etc/frp/frps.toml
 
@@ -334,7 +334,7 @@ sudo tail -30 /var/log/frp/frpc.log
 
 ---
 
-**작업 시작**: 집 miniPC에서 위 단계를 따라 FRP를 WebSocket(wss)으로 전환하세요.
+**작업 시작**: 집 MiniPC에서 위 단계를 따라 FRP를 WebSocket(wss)으로 전환하세요.
 
 **중요 포인트**:
 1. 포트 443은 표준 HTTPS 포트 - 대부분의 방화벽에서 허용

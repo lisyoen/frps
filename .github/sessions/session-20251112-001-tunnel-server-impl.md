@@ -1,14 +1,27 @@
-# Session 20251112-001: 터널 서버 구현 (miniPC)
+# Session 20251112-001: 터널 서버 구현 (MiniPC)
 
 **날짜**: 2025-11-12  
-**위치**: miniPC (집, SSH Remote from MainPC)  
+**위치**: MiniPC (집, SSH Remote from MainPC)  
 **상태**: ✅ 완료
+
+---
+
+## 개발 환경
+
+**현재 작업**: 개발 환경
+- **개발 서버**: MiniPC (Ubuntu/Linux Mint 22, 192.168.50.196, 집)
+- **개발 클라이언트**: MainPC (Windows 11, 192.168.50.102, 집)
+  - SSH Remote로 MiniPC 접속하여 서버 개발
+
+**향후 운영 환경**:
+- **운영 서버**: MiniPC (systemd 서비스로 자동 실행)
+- **운영 클라이언트**: SubPC (Windows 11, 회사 내부망, Windows 서비스)
 
 ---
 
 ## 목표
 
-집(miniPC)에서 실행되는 HTTP 터널 서버 구현 완료
+집(MiniPC)에서 실행되는 HTTP 터널 서버 구현 완료
 
 ---
 
@@ -117,7 +130,7 @@ tunnel-server/
 
 **커밋 메시지:**
 ```
-터널 서버 구현 완료 (miniPC)
+터널 서버 구현 완료 (MiniPC)
 
 - asyncio 기반 HTTP 터널 서버 구현
   - 커맨드 채널 (8089): SubPC와 영구 연결
@@ -138,24 +151,26 @@ tunnel-server/
 
 ## 다음 단계
 
-### 1. 클라이언트 구현 (회사 업무PC, Windows 11)
+### 1. 클라이언트 개발 (MainPC, 집에서 개발)
 - [ ] `tunnel-client/` 디렉토리 생성
 - [ ] `tunnel_client.py` 메인 코드
 - [ ] HTTP CONNECT 프록시 연결 (30.30.30.27:8080)
-- [ ] 커맨드 채널 영구 연결 (miniPC:8089)
+- [ ] 커맨드 채널 영구 연결 (MiniPC:8089)
 - [ ] NEW_CONN 메시지 수신 및 파싱
-- [ ] 데이터 채널 연결 (miniPC:8091)
+- [ ] 데이터 채널 연결 (MiniPC:8091)
 - [ ] 대상 서버 연결 (172.21.113.31:4000)
 - [ ] 양방향 relay
 
-### 2. 통합 테스트
-- [ ] 업무PC → miniPC (프록시 경유)
+### 2. 통합 테스트 (MainPC + MiniPC)
+- [ ] MainPC → MiniPC (로컬 네트워크)
+- [ ] 프록시 시뮬레이션
 - [ ] LLM API 호출 테스트
 
-### 3. 배포
-- [ ] SubPC에 코드 복사
+### 3. 운영 배포 (SubPC, 회사)
+- [ ] SubPC에 코드 배포 (git pull)
+- [ ] 회사 프록시 경유 테스트
 - [ ] Windows 서비스 등록
-- [ ] 자동 시작 설정
+- [ ] MiniPC systemd 서비스 등록
 
 ---
 
@@ -169,7 +184,9 @@ tunnel-server/
 
 ## 결론
 
-miniPC 터널 서버 구현 완료. 로컬 테스트 성공. 다음 세션에서 회사 업무PC에서 클라이언트 구현 예정.
+MiniPC 터널 서버 구현 완료. 로컬 테스트 성공.
 
-**세션 종료 위치**: miniPC (집, SSH Remote)  
-**다음 세션 시작 위치**: 회사 업무PC (Windows 11)
+**다음 작업**: MainPC에서 클라이언트 개발 → MiniPC와 로컬 네트워크 테스트 → SubPC 운영 배포
+
+**세션 종료 위치**: MiniPC (집, SSH Remote)  
+**다음 세션 시작 위치**: MainPC (집, Windows 11) 또는 MiniPC (계속 개발)

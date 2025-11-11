@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-HTTP Tunnel Server (miniPC)
+HTTP Tunnel Server (MiniPC)
 
-역할: 집(miniPC)에서 실행되는 터널 서버
+역할: 집(MiniPC)에서 실행되는 터널 서버
 - 8089: 커맨드 채널 (SubPC와 영구 연결)
 - 8090: 데이터 채널 (HTTP 트래픽, 다중 연결)
 

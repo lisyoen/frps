@@ -11,7 +11,7 @@ PROXIES = {
     'https': 'http://30.30.30.27:8080'
 }
 
-# miniPC HTTP 터널 (실제 실행 포트)
+# MiniPC HTTP 터널 (실제 실행 포트)
 TUNNEL_URL = "http://110.13.119.7:8089"
 
 def test_tunnel():
@@ -34,9 +34,9 @@ def test_tunnel():
         print(f"❌ 연결 실패: {e}")
         return
     
-    # 2. LLM API 프록시 테스트 (miniPC에 터널 서버 필요)
+    # 2. LLM API 프록시 테스트 (MiniPC에 터널 서버 필요)
     print("\n[2] LLM API 프록시 테스트...")
-    print("(miniPC에 HTTP 터널 서버가 실행 중이어야 합니다)")
+    print("(MiniPC에 HTTP 터널 서버가 실행 중이어야 합니다)")
     
     llm_payload = {
         "model": "gpt-3.5-turbo",

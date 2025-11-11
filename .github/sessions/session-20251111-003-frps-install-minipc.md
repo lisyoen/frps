@@ -5,12 +5,12 @@
 - **세션 ID**: session-20251111-003-frps-install-minipc
 - **날짜**: 2025-11-11
 - **상태**: 진행 중 🔄
-- **작업자**: 집 miniPC
+- **작업자**: 집 MiniPC
 - **이전 세션**: session-20251111-002-frpc-deploy-at-office (일시 중단)
 
 ## 작업 목적
 
-집 miniPC(192.168.50.196)에 FRP 서버(frps)를 설치하여 회사 LLM 서버가 연결할 수 있는 중계 서버 구축
+집 MiniPC(192.168.50.196)에 FRP 서버(frps)를 설치하여 회사 LLM 서버가 연결할 수 있는 중계 서버 구축
 
 ## 현재 상황
 
@@ -19,7 +19,7 @@
 - ✅ session-20251111-002: 회사 Spark 장비에 FRP 클라이언트(frpc) 설치 완료
 
 ### 미완료 작업
-- ✅ 집 miniPC에 FRP 서버(frps) 설치 완료
+- ✅ 집 MiniPC에 FRP 서버(frps) 설치 완료
 - ✅ 포트 변경: 7000 → 8000 (공유기 8000~8999 범위 제한)
 - ✅ frps 정상 실행 중 (포트 8000, 8081 리스닝)
 - ⏳ 회사 frpc 재설정 필요 (serverPort를 8000으로 변경)
@@ -27,8 +27,8 @@
 
 ## 작업 환경
 
-### 집 miniPC
-- **Hostname**: miniPC
+### 집 MiniPC
+- **Hostname**: MiniPC
 - **OS**: Linux (Ubuntu-based)
 - **Architecture**: x86_64 (amd64)
 - **내부 IP**: 192.168.50.196
@@ -38,16 +38,16 @@
 - **필요 포트**: 7000 (FRP 제어), 8081 (FRP HTTP 프록시)
 
 ### 회사 Spark (대기 중)
-- **상태**: FRP 클라이언트 설치 완료, miniPC 연결 대기 중
+- **상태**: FRP 클라이언트 설치 완료, MiniPC 연결 대기 중
 - **IP**: 172.21.113.31
 - **LLM Port**: 4000
-- **연결 대상**: 110.13.119.7:7000 (miniPC FRP 서버)
+- **연결 대상**: 110.13.119.7:7000 (MiniPC FRP 서버)
 
 ## 작업 계획
 
 ### 1단계: 저장소 확인
 ```bash
-# miniPC에서 실행
+# MiniPC에서 실행
 cd ~
 ls -la frps  # 저장소 존재 확인
 
@@ -148,7 +148,7 @@ sudo journalctl -u frpc -n 50
 
 ### 8단계: 최종 테스트
 ```bash
-# miniPC 또는 집 PC에서 실행
+# MiniPC 또는 집 PC에서 실행
 cd ~/frps
 bash scripts/test-frp.sh
 bash scripts/test-llm-api.sh
@@ -202,7 +202,7 @@ sudo iptables -L -n
 # - Port Forwarding 설정 확인
 ```
 
-## miniPC 작업 결과 (2025-11-11 10:14)
+## MiniPC 작업 결과 (2025-11-11 10:14)
 
 ### 완료된 작업
 1. ✅ 포트 충돌 문제 해결
@@ -266,7 +266,7 @@ sudo iptables -L -n
    # 회사 내부에서 테스트
    curl http://localhost:4000/v1/models
    
-   # 또는 miniPC/집에서 외부 테스트
+   # 또는 MiniPC/집에서 외부 테스트
    curl -H "Host: llm.local" http://110.13.119.7:8081/v1/models
    ```
 
@@ -281,7 +281,7 @@ sudo iptables -L -n
 
 ### 1단계: 저장소 확인
 ```bash
-# miniPC에서 실행
+# MiniPC에서 실행
 cd ~
 ls -la frps  # 저장소 존재 확인
 
@@ -382,7 +382,7 @@ sudo journalctl -u frpc -n 50
 
 ### 8단계: 최종 테스트
 ```bash
-# miniPC 또는 집 PC에서 실행
+# MiniPC 또는 집 PC에서 실행
 cd ~/frps
 bash scripts/test-frp.sh
 bash scripts/test-llm-api.sh
@@ -436,7 +436,7 @@ sudo iptables -L -n
 # - Port Forwarding 설정 확인
 ```
 
-## miniPC 작업 결과 (2025-11-11 10:14)
+## MiniPC 작업 결과 (2025-11-11 10:14)
 
 ### 완료된 작업
 1. ✅ 포트 충돌 문제 해결
@@ -500,7 +500,7 @@ sudo iptables -L -n
    # 회사 내부에서 테스트
    curl http://localhost:4000/v1/models
    
-   # 또는 miniPC/집에서 외부 테스트
+   # 또는 MiniPC/집에서 외부 테스트
    curl -H "Host: llm.local" http://110.13.119.7:8081/v1/models
    ```
 
@@ -513,5 +513,5 @@ sudo iptables -L -n
 
 ---
 
-**작업 시작**: 집 miniPC에서 위 단계를 따라 FRP 서버를 설치하세요.
+**작업 시작**: 집 MiniPC에서 위 단계를 따라 FRP 서버를 설치하세요.
 **중요**: 라우터 포트 포워딩(7000, 8081)을 꼭 설정해야 외부에서 접속 가능합니다!

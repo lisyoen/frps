@@ -16,7 +16,7 @@
 ## 작업 환경
 
 ### 집 환경 (완료)
-- ✅ miniPC (110.13.119.7): FRP 서버(frps) 설치 및 실행 완료
+- ✅ MiniPC (110.13.119.7): FRP 서버(frps) 설치 및 실행 완료
 - ✅ Git 저장소: github.com/lisyoen/frps
 - ✅ 설정 파일: configs/frps.toml (실제 값으로 커밋됨)
 
@@ -49,7 +49,7 @@ cat .github/development-environment.md
 cat configs/frpc.toml
 
 # 설정이 맞는지 검토:
-# - serverAddr = "110.13.119.7" (miniPC 공인 IP)
+# - serverAddr = "110.13.119.7" (MiniPC 공인 IP)
 # - serverPort = 7000
 # - auth.token = "deasea!1"
 # - localIP = "172.21.113.31" (LLM 서버 내부 IP)
@@ -108,19 +108,19 @@ sudo systemctl status frpc
 
 ### 성공 시
 - ✅ frpc 서비스가 정상 실행 중 (systemctl status frpc → active (running))
-- ✅ miniPC frps 서버와 정상 연결 (로그에 "login to server success" 표시)
+- ✅ MiniPC frps 서버와 정상 연결 (로그에 "login to server success" 표시)
 - ✅ 집에서 `http://110.13.119.7:8081` 접속 시 LLM API 응답 받음
 - ✅ `test-llm-api.sh` 실행 시 정상 응답
 
 ### 문제 발생 시
 - 🔍 frpc 로그 확인: `sudo journalctl -u frpc -n 100`
-- 🔍 frps 로그 확인 (miniPC에서): `sudo journalctl -u frps -n 100`
-- 🔍 방화벽 확인: miniPC 7000, 8081 포트 개방 상태
-- 🔍 네트워크 연결 확인: 회사 → miniPC 공인 IP 접근 가능 여부
+- 🔍 frps 로그 확인 (MiniPC에서): `sudo journalctl -u frps -n 100`
+- 🔍 방화벽 확인: MiniPC 7000, 8081 포트 개방 상태
+- 🔍 네트워크 연결 확인: 회사 → MiniPC 공인 IP 접근 가능 여부
 
 ## 테스트 방법
 
-### miniPC에서 테스트 (집)
+### MiniPC에서 테스트 (집)
 ```bash
 # frps 서버 상태 확인
 sudo systemctl status frps
@@ -140,7 +140,7 @@ sudo systemctl status frpc
 # 로컬 LLM API 확인
 curl http://localhost:4000/v1/models
 
-# FRP 터널 통한 외부 접근 테스트 (miniPC 통해)
+# FRP 터널 통한 외부 접근 테스트 (MiniPC 통해)
 curl http://110.13.119.7:8081/v1/models
 ```
 
@@ -149,11 +149,11 @@ curl http://110.13.119.7:8081/v1/models
 1. **보안**
    - 현재 토큰(`deasea!1`)은 개발용
    - 프로덕션 사용 시 반드시 변경 필요
-   - miniPC 방화벽 설정 확인 (7000, 8081 포트만 개방)
+   - MiniPC 방화벽 설정 확인 (7000, 8081 포트만 개방)
 
 2. **네트워크**
    - 회사 방화벽에서 110.13.119.7:7000 접속 허용 필요
-   - miniPC 공인 IP 변경 시 frpc.toml 업데이트 필요
+   - MiniPC 공인 IP 변경 시 frpc.toml 업데이트 필요
 
 3. **서비스 관리**
    - frpc는 systemd로 자동 시작됨
@@ -182,7 +182,7 @@ curl http://110.13.119.7:8081/v1/models
    ```
 
 4. **집에서 최종 테스트**
-   - miniPC에서 git pull
+   - MiniPC에서 git pull
    - 집 PC에서 LLM API 접근 테스트
    - VSCode에서 LLM 사용 테스트
 
@@ -200,7 +200,7 @@ curl http://110.13.119.7:8081/v1/models
 #### ✅ 완료된 작업
 - [x] 저장소 클론 완료 (이미 존재함)
 - [x] configs/frpc.toml 설정 검토 완료
-  - serverAddr: 110.13.119.7 (miniPC 공인 IP)
+  - serverAddr: 110.13.119.7 (MiniPC 공인 IP)
   - serverPort: 7000
   - auth.token: deasea!1
   - localIP: 172.21.113.31 (Spark 내부 IP)
@@ -216,7 +216,7 @@ curl http://110.13.119.7:8081/v1/models
 
 #### ❌ 연결 실패 - 회사 네트워크 제한
 - [x] frpc 서비스는 정상 실행 중
-- [x] 하지만 miniPC(110.13.119.7:7000) 연결 실패
+- [x] 하지만 MiniPC(110.13.119.7:7000) 연결 실패
 - [x] 로그 오류: `dial tcp 110.13.119.7:7000: i/o timeout`
 - [x] 네트워크 테스트 결과:
   ```bash
@@ -245,7 +245,7 @@ curl http://110.13.119.7:8081/v1/models
    - 또는 특정 IP 대역 화이트리스트 추가
 
 2. **대안 1: Cloudflare Tunnel 사용**
-   - miniPC에 Cloudflare Tunnel 설치
+   - MiniPC에 Cloudflare Tunnel 설치
    - FRP 대신 Cloudflare Tunnel로 회사 → 집 연결
    - 장점: HTTPS, 443 포트 사용 (일반적으로 열려있음)
 
@@ -260,7 +260,7 @@ curl http://110.13.119.7:8081/v1/models
 #### 📋 현재 상태 (2025-11-11 10:16 업데이트)
 
 **포트 변경 후 재테스트 완료**
-- ✅ **miniPC (session-003)**: FRP 서버 포트 8000으로 변경 및 설치 완료
+- ✅ **MiniPC (session-003)**: FRP 서버 포트 8000으로 변경 및 설치 완료
 - ✅ **Spark 클라이언트**: 설정 파일 업데이트 (serverPort: 7000 → 8000)
 - ✅ **서비스 재시작**: frpc 재시작 완료
 - ❌ **연결 실패**: `dial tcp 110.13.119.7:8000: i/o timeout` (여전히 차단)
@@ -286,7 +286,7 @@ curl http://110.13.119.7:8081/v1/models
 - [x] configs/frpc.toml 설정 검토
 - [x] install-frpc.sh 실행 (수동 설치로 대체)
 - [x] frpc 서비스 정상 실행 확인
-- [❌] miniPC frps와 연결 확인 → **네트워크 차단으로 실패**
+- [❌] MiniPC frps와 연결 확인 → **네트워크 차단으로 실패**
 - [❌] test-frp.sh 테스트 성공 → **연결 불가로 스킵**
 - [❌] test-llm-api.sh 테스트 성공 → **연결 불가로 스킵**
 - [ ] 세션 파일 업데이트 및 커밋 (지금 진행 중)

@@ -38,8 +38,8 @@ git message 는 한국어로 생성해야 합니다.
    - Windows: `ipconfig`
    - `.github/development-environment.md`의 Hosts 정보와 대조
 
-3. **접속 방식 확인** (miniPC만 해당)
-   - miniPC는 두 가지 방식으로 접속 가능:
+3. **접속 방식 확인** (MiniPC만 해당)
+   - MiniPC는 두 가지 방식으로 접속 가능:
      - **집에서**: MainPC(192.168.50.102)에서 SSH Remote 접속
        - `$SSH_CLIENT` 환경 변수로 확인: `192.168.50.102`
        - VSCode Remote SSH 사용
@@ -72,7 +72,7 @@ git message 는 한국어로 생성해야 합니다.
      - `XRDP_PULSE_SINK_SOCKET`, `XRDP_PULSE_SOURCE_SOCKET` (오디오)
    
 4. **장비별 특성 안내**
-   - **miniPC (192.168.50.196)**: 
+   - **MiniPC (192.168.50.196)**: 
      - Docker 사용 가능
      - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
      - 집 네트워크 (공인 IP: 110.13.119.7)
@@ -88,13 +88,13 @@ git message 는 한국어로 생성해야 합니다.
 
 5. **서버 간 메시지 확인**
    - `.github/inter-session-messages.md` 파일 확인
-   - miniPC와 Spark 간 작업 정보 공유
+   - MiniPC와 Spark 간 작업 정보 공유
    - 응답 필요 시 메시지 추가 후 Git 커밋/푸시
 
 **예시 출력:**
 ```
 ✅ Git pull 완료
-✅ 현재 장비: miniPC (192.168.50.196)
+✅ 현재 장비: MiniPC (192.168.50.196)
    📍 접속 방식: 집에서 MainPC Remote SSH (192.168.50.102)
    - Docker 사용 가능
    - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
@@ -106,7 +106,7 @@ git message 는 한국어로 생성해야 합니다.
 
 ```
 ✅ Git pull 완료
-✅ 현재 장비: miniPC (192.168.50.196)
+✅ 현재 장비: MiniPC (192.168.50.196)
    📍 접속 방식: 회사에서 Guacamole (xRDP) 로컬 GUI
    - Docker 사용 가능
    - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
@@ -129,7 +129,7 @@ git message 는 한국어로 생성해야 합니다.
 **주요 활용 시나리오**:
 - 스크립트 작성 시 올바른 Node.js/Python 버전 참조
 - 경로 설정 시 실제 설치된 도구 경로 확인
-- Docker 사용 가능 여부 확인 (miniPC만 가능)
+- Docker 사용 가능 여부 확인 (MiniPC만 가능)
 - API 엔드포인트 설정 시 LLM Configuration 참조
 
 ## 프로젝트 목표 및 컨텍스트 (최우선!)

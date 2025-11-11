@@ -11,7 +11,7 @@
 - **Public IP**: 110.13.119.7
 - **Location**: Home network
 
-### miniPC (Linux)
+### MiniPC (Linux)
 - **Role**: Development Server
 - **OS**: Linux (Ubuntu-based)
 - **IP**: 192.168.50.196/24 (Local), 110.13.119.7 (Public)
@@ -34,7 +34,7 @@
 - **Network Restrictions**:
   - ❌ **Outbound ping blocked**: Cannot ping external IPs
   - ❌ **Outbound connections restricted**: Limited external access
-  - ⚠️ **FRP connection issue**: Cannot connect to home miniPC (110.13.119.7:7000)
+  - ⚠️ **FRP connection issue**: Cannot connect to home MiniPC (110.13.119.7:7000)
   - ℹ️ Requires network policy review or VPN/proxy setup
 
 ### DESKTOP-OLDWIN1 (win-backup)
@@ -58,7 +58,7 @@
   - Node.js: `C:\Program Files\nodejs\`
   - npm: `C:\Users\lisyo\AppData\Roaming\npm`
 
-### miniPC (Linux)
+### MiniPC (Linux)
 - **Node.js**: 20.19.1 (via nvm)
 - **Python**: 3.12.3
 - **Docker**: 26.1.3
@@ -82,7 +82,7 @@
 - **CARGO_HOME**: `~/.cargo`
 - **RUSTUP_HOME**: `~/.rustup`
 
-### miniPC Specific
+### MiniPC Specific
 - **npm prefix**: `/home/lisyoen/.nvm/versions/node/v20.19.1`
 - **npm cache**: `/home/lisyoen/.npm`
 - **npm registry**: https://registry.npmjs.org/
@@ -99,7 +99,7 @@
 ### LAN Devices (192.168.50.0/24)
 - **Gateway**: 192.168.50.1 (RT-AX53U-AC60)
 - **DESKTOP-HOME**: 192.168.50.102
-- **miniPC**: 192.168.50.196
+- **MiniPC**: 192.168.50.196
 - **LG TV**: 192.168.50.250
 - **iPhone**: 192.168.50.160
 - **Total Devices**: 15

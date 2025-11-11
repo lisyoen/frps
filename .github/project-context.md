@@ -5,15 +5,15 @@
 - **목표**: 회사 내부망 LLM 서버를 외부에서 안전하게 호출하기 위한 FRP 기반 역방향 프록시 환경 구축
 - **타입**: 인프라/네트워크 프로젝트
 - **언어**: Bash (스크립트), TOML (설정)
-- **위치**: /home/lisyoen/frps (miniPC)
+- **위치**: /home/lisyoen/frps (MiniPC)
 - **저장소**: https://github.com/lisyoen/frps
 
 ## 개발 환경
-- **개발 머신**: miniPC (Ubuntu Linux, 192.168.50.196)
+- **개발 머신**: MiniPC (Ubuntu Linux, 192.168.50.196)
 - **개발 도구**: VSCode + GitHub Copilot
 - **버전 관리**: Git + GitHub
 - **배포 대상**: 
-  - miniPC (FRP 서버)
+  - MiniPC (FRP 서버)
   - 사무실 LLM 서버 (FRP 클라이언트)
 
 ## 프로젝트 목표
@@ -21,7 +21,7 @@
 
 ### 핵심 요구사항
 1. **역방향 터널링**: 사무실 → 집 방향의 아웃바운드 연결
-2. **LLM API 중계**: miniPC를 통한 외부 접근 제공
+2. **LLM API 중계**: MiniPC를 통한 외부 접근 제공
 3. **자동화**: 설치/배포/관리의 완전 자동화
 4. **안정성**: systemd 기반 자동 재시작 및 로그 관리
 
@@ -31,7 +31,7 @@
 ```
 [회사 내부망]                [인터넷]              [집]
 ┌─────────────────┐                        ┌──────────────────┐
-│ LLM 서버         │                        │ miniPC           │
+│ LLM 서버         │                        │ MiniPC           │
 │ 172.21.xxx.xxx  │                        │ 192.168.50.xxx   │
 │ Port: xxxx      │                        │ (xxx.xxx.xxx.xxx)│
 │                 │                        │ Port: xxxx,xxxx  │
@@ -49,7 +49,7 @@
 ### 역할 분담
 | 구성 요소 | 호스트 | 역할 | 소프트웨어 |
 |-----------|--------|------|------------|
-| **Server** | miniPC (집) | FRP 서버, 외부 접속 중계 | frps v0.65.0 |
+| **Server** | MiniPC (집) | FRP 서버, 외부 접속 중계 | frps v0.65.0 |
 | **Client** | LLM 서버 (회사) | FRP 클라이언트, 역방향 연결 | frpc v0.65.0 |
 | **User** | 집 PC | HTTP 요청 발신 | curl, Postman 등 |
 
@@ -112,7 +112,7 @@ curl -H "Host: llm.local" \
 frps/
 ├── README.md              # 프로젝트 전체 문서
 ├── configs/
-│   ├── frps.toml         # FRP 서버 설정 (miniPC)
+│   ├── frps.toml         # FRP 서버 설정 (MiniPC)
 │   └── frpc.toml         # FRP 클라이언트 설정 (사무실)
 ├── scripts/
 │   ├── install-frps.sh   # FRP 서버 자동 설치
@@ -136,8 +136,8 @@ frps/
 - **LLM_PORT**: LLM API 원본 포트 (내부망 전용) - 예: 4000
 
 ### IP 주소 (보안상 마스킹)
-- **miniPC 내부 IP**: 192.168.50.xxx
-- **miniPC 공인 IP**: xxx.xxx.xxx.xxx
+- **MiniPC 내부 IP**: 192.168.50.xxx
+- **MiniPC 공인 IP**: xxx.xxx.xxx.xxx
 - **LLM 서버 IP**: 172.21.xxx.xxx (회사 내부망)
 
 ### 보안
@@ -147,7 +147,7 @@ frps/
 
 ## 개발 워크플로우
 
-### 개발 환경 (miniPC)
+### 개발 환경 (MiniPC)
 ```bash
 # 개발 위치
 cd /home/lisyoen/frps
@@ -164,7 +164,7 @@ git push
 
 ### 배포 워크플로우
 
-#### 1. miniPC에 FRP 서버 배포
+#### 1. MiniPC에 FRP 서버 배포
 ```bash
 sudo bash scripts/install-frps.sh
 sudo systemctl status frps
@@ -190,7 +190,7 @@ bash scripts/test-llm-api.sh
 
 ### 서비스 관리
 ```bash
-# FRP 서버 (miniPC)
+# FRP 서버 (MiniPC)
 sudo systemctl start frps
 sudo systemctl stop frps
 sudo systemctl restart frps
@@ -325,4 +325,4 @@ systemctl status frpc --no-pager -l
 
 **작성자**: 이창연 (lisyoen@gmail.com)  
 **최종 수정**: 2025-11-11  
-**개발 환경**: miniPC + VSCode + GitHub Copilot
+**개발 환경**: MiniPC + VSCode + GitHub Copilot

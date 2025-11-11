@@ -1,7 +1,7 @@
 # HTTP Tunnel Protocol 설계
 
 ## 1. 목적
-miniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사 내부망의 임의 서버(예: LLM API)에 HTTP 요청을 전달한다.
+MiniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사 내부망의 임의 서버(예: LLM API)에 HTTP 요청을 전달한다.
 
 **핵심 요구사항:**
 - 회사 방화벽 우회 (HTTP CONNECT 프록시 경유)
@@ -12,7 +12,7 @@ miniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 
 ## 2. 장비 구성
 
-### miniPC (집) - 터널 서버
+### MiniPC (집) - 터널 서버
 - **역할**: 터널 서버, 클라이언트 요청을 SubPC로 라우팅
 - **위치**: 집 (공인 IP: 110.13.119.7)
 - **포트**:
@@ -23,13 +23,13 @@ miniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 - **역할**: 터널 클라이언트, 회사 내부망 서버로 HTTP 프록시
 - **위치**: 회사 내부망 (항상 켜둠)
 - **연결**:
-  - miniPC:8089에 영구 연결 (HTTP CONNECT 터널, 회사 프록시 경유)
-  - miniPC:8090에 요청별 연결 (HTTP CONNECT 터널, 회사 프록시 경유)
+  - MiniPC:8089에 영구 연결 (HTTP CONNECT 터널, 회사 프록시 경유)
+  - MiniPC:8090에 요청별 연결 (HTTP CONNECT 터널, 회사 프록시 경유)
 - **대상**: 회사 내부망 서버 (예: 172.21.113.31:4000 - LLM API)
 
 ### 클라이언트 (집) - 터널 사용자
 - **역할**: HTTP 요청 발생 (MainPC, 노트북 등)
-- **연결**: miniPC:8090에 순수 HTTP 요청
+- **연결**: MiniPC:8090에 순수 HTTP 요청
 
 ---
 
@@ -45,7 +45,7 @@ miniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
          │                                                   │ HTTP CONNECT
          ↓                                                   │ (터널 유지)
 ┌────────────────────┐                                      │
-│     miniPC          │                                      │
+│     MiniPC          │                                      │
 │  (터널 서버)        │ ←────────────────────────────────────┘
 │                     │
 │  8089: 커맨드 채널  │ ←─── SubPC 영구 연결 (명령 수신)
@@ -69,36 +69,36 @@ miniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 
 ### Phase 1: 초기 연결 (시스템 시작 시 1회)
 ```
-1. miniPC가 8089, 8090 포트 LISTEN
-2. SubPC가 miniPC:8089에 HTTP CONNECT 터널 연결 (영구 유지)
+1. MiniPC가 8089, 8090 포트 LISTEN
+2. SubPC가 MiniPC:8089에 HTTP CONNECT 터널 연결 (영구 유지)
    - 회사 프록시(30.30.30.27:8080) 경유
    - 커맨드 채널로 사용
 ```
 
 ### Phase 2: HTTP 요청 처리 (요청마다 반복)
 ```
-1. 클라이언트(MainPC)가 miniPC:8090에 HTTP 요청
+1. 클라이언트(MainPC)가 MiniPC:8090에 HTTP 요청
    - 예: POST http://110.13.119.7:8090/v1/chat/completions
 
-2. miniPC가 클라이언트 소켓 accept()
+2. MiniPC가 클라이언트 소켓 accept()
    - client_ip 추출 (예: 192.168.50.100)
    - pending_clients[client_ip] = client_socket 저장
 
-3. miniPC → SubPC (8089 커맨드 채널):
+3. MiniPC → SubPC (8089 커맨드 채널):
    "NEW_CONN 192.168.50.100 172.21.113.31:4000\n"
    
 4. SubPC가 커맨드 수신 후:
    a) 대상 서버 파싱: 172.21.113.31:4000
-   b) miniPC:8090에 HTTP CONNECT 터널 연결 (새 소켓)
-   c) miniPC에게 "READY 192.168.50.100\n" 응답 (8089로)
+   b) MiniPC:8090에 HTTP CONNECT 터널 연결 (새 소켓)
+   c) MiniPC에게 "READY 192.168.50.100\n" 응답 (8089로)
 
-5. miniPC가 READY 수신:
+5. MiniPC가 READY 수신:
    - pending_clients[192.168.50.100] 찾기
    - client_socket ↔ tunnel_socket 양방향 relay 시작
 
 6. 데이터 전송:
-   클라이언트 → miniPC:8090 → SubPC → 172.21.113.31:4000
-   클라이언트 ← miniPC:8090 ← SubPC ← 172.21.113.31:4000
+   클라이언트 → MiniPC:8090 → SubPC → 172.21.113.31:4000
+   클라이언트 ← MiniPC:8090 ← SubPC ← 172.21.113.31:4000
 
 7. HTTP 요청 완료 후:
    - 양쪽 소켓 종료
@@ -118,7 +118,7 @@ miniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 
 ### 명령어 목록
 
-#### 1. NEW_CONN (miniPC → SubPC)
+#### 1. NEW_CONN (MiniPC → SubPC)
 ```
 NEW_CONN <client_ip> <target_host>:<target_port>\n
 
@@ -131,19 +131,19 @@ NEW_CONN 192.168.50.100 172.21.113.31:4000\n
 - `client_ip`: 클라이언트의 IP 주소 (매칭 키)
 - `target_host:target_port`: 회사 내부망 대상 서버
 
-#### 2. READY (SubPC → miniPC)
+#### 2. READY (SubPC → MiniPC)
 ```
 READY <client_ip>\n
 
 예시:
 READY 192.168.50.100\n
 ```
-**의미**: miniPC:8090에 터널 연결 완료, client_ip로 매칭하여 relay 시작
+**의미**: MiniPC:8090에 터널 연결 완료, client_ip로 매칭하여 relay 시작
 
 **파라미터:**
 - `client_ip`: 대기 중인 클라이언트 IP (pending_clients에서 찾기)
 
-#### 3. ERROR (SubPC → miniPC)
+#### 3. ERROR (SubPC → MiniPC)
 ```
 ERROR <client_ip> <error_message>\n
 
@@ -163,7 +163,7 @@ ERROR 192.168.50.100 Connection refused\n
 
 ### TCP 소켓 동작
 ```
-miniPC:8090 LISTEN
+MiniPC:8090 LISTEN
 
 클라이언트1 연결 → accept() → socket_A (192.168.50.100:54321)
 클라이언트2 연결 → accept() → socket_B (192.168.50.101:54322)
@@ -186,7 +186,7 @@ socket_B ↔ socket_D (client_ip로 매칭)
 
 ### 연결 실패
 - SubPC가 대상 서버 연결 실패 시 → ERROR 전송
-- miniPC가 클라이언트에게 502 Bad Gateway 응답
+- MiniPC가 클라이언트에게 502 Bad Gateway 응답
 
 ### 중복 IP
 - 같은 IP에서 동시 다중 요청 시 **순차 처리**
@@ -196,7 +196,7 @@ socket_B ↔ socket_D (client_ip로 매칭)
 
 ## 8. 구현 참고사항
 
-### miniPC 서버 (Python 예시)
+### MiniPC 서버 (Python 예시)
 ```python
 import asyncio
 
@@ -255,7 +255,7 @@ async def relay(reader1, writer1, reader2, writer2):
 ### SubPC 클라이언트 (Python 예시)
 ```python
 async def connect_tunnel():
-    """miniPC:8089에 영구 연결"""
+    """MiniPC:8089에 영구 연결"""
     reader, writer = await connect_via_proxy(
         "110.13.119.7", 8089,
         proxy="30.30.30.27:8080"
@@ -266,14 +266,14 @@ async def connect_tunnel():
         cmd, client_ip, target = line.decode().strip().split()
         
         if cmd == "NEW_CONN":
-            # miniPC:8090에 새 터널 연결
+            # MiniPC:8090에 새 터널 연결
             await handle_new_connection(client_ip, target, writer)
 
 async def handle_new_connection(client_ip, target, cmd_writer):
     """새 HTTP 터널 연결"""
     host, port = target.split(":")
     
-    # miniPC:8090에 HTTP CONNECT 터널
+    # MiniPC:8090에 HTTP CONNECT 터널
     tunnel_reader, tunnel_writer = await connect_via_proxy(
         "110.13.119.7", 8090,
         proxy="30.30.30.27:8080"

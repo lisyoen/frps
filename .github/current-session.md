@@ -1,26 +1,27 @@
 # Current Session
 
-**세션 ID**: session-20251111-005-tunnel-protocol-design
+**세션 ID**: session-20251112-001-tunnel-server-impl
 
-**상태**: ✅ 완료 (설계 단계)
+**상태**: ✅ 완료
 
-**작업**: HTTP 터널 프로토콜 설계 완료 - FRP 대체
+**작업**: miniPC 터널 서버 구현 완료
 
-**상세**: `.github/sessions/session-20251111-005-tunnel-protocol-design.md` 참조
+**상세**: `.github/sessions/session-20251112-001-tunnel-server-impl.md` 참조
 
 ---
 
 ## 다음 단계
 
 **위치**: 회사 업무PC (Windows 11)  
-**작업**: 터널 서버 구현 시작 (`tunnel-server/tunnel_server.py`)  
-**참고**: `.github/tunnel-protocol.md` 참조하여 miniPC용 서버 먼저 구현
+**작업**: 터널 클라이언트 구현 (`tunnel-client/tunnel_client.py`)  
+**참고**: HTTP CONNECT 프록시 (30.30.30.27:8080) 경유하여 miniPC 연결
 
 ---
 
 ## 최근 세션 목록
 
-**session-20251111-005**: HTTP 터널 프로토콜 설계 (✅ 완료, tunnel-protocol.md)  
+**session-20251112-001**: miniPC 터널 서버 구현 (✅ 완료)  
+**session-20251111-005**: HTTP 터널 프로토콜 설계 (✅ 완료)  
 **session-20251111-004**: FRP WebSocket 전환 시도 (❌ 중단, DPI 차단)  
-**session-20251111-003**: miniPC FRP 서버 설치 (✅ 완료, TCP 포트 8000)  
-**session-20251111-002**: 회사 Spark FRP 클라이언트 설치 (⏸️ 네트워크 제한)
+**session-20251111-003**: miniPC FRP 서버 설치 (✅ 완료)
+

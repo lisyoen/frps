@@ -14,8 +14,8 @@
 표준 SSH 터널이나 VPN 방식은 사용할 수 없다.
 
 이를 해결하기 위해 **FRP(Fast Reverse Proxy)** 기반의 역방향 터널링을 구현하여,
-사무실 LLM 서버가 집의 miniPC로 아웃바운드 연결을 맺고,
-miniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
+사무실 LLM 서버가 집의 MiniPC로 아웃바운드 연결을 맺고,
+MiniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
 
 ---
 
@@ -23,9 +23,9 @@ miniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
 
 | 구분 | 역할 | 비고 |
 |------|------|------|
-| **사무실 LLM 서버** | FRP 클라이언트(`frpc`) 실행, miniPC로 역방향 연결 | GPU DGX Spark 기반 |
-| **miniPC (집)** | FRP 서버(`frps`) 구동, 외부 접속 중계 | 공개 포트 (제어, HTTP) |
-| **집 PC** | HTTP 요청을 통해 miniPC를 통해 LLM API 호출 | 개발·테스트 환경 |
+| **사무실 LLM 서버** | FRP 클라이언트(`frpc`) 실행, MiniPC로 역방향 연결 | GPU DGX Spark 기반 |
+| **MiniPC (집)** | FRP 서버(`frps`) 구동, 외부 접속 중계 | 공개 포트 (제어, HTTP) |
+| **집 PC** | HTTP 요청을 통해 MiniPC를 통해 LLM API 호출 | 개발·테스트 환경 |
 
 ---
 
@@ -46,13 +46,13 @@ miniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
 
 ### 2.4 기술 목표
 1. **역방향 HTTP 프록시 구축**
-   - 사무실 LLM 서버 → miniPC 방향의 아웃바운드 연결(제어 포트)
-   - miniPC → 집 PC 방향의 HTTP 응답(HTTP 포트)
+   - 사무실 LLM 서버 → MiniPC 방향의 아웃바운드 연결(제어 포트)
+   - MiniPC → 집 PC 방향의 HTTP 응답(HTTP 포트)
 2. **LLM API 중계**
-   - miniPC의 HTTP 포트를 통해 LLM API를 외부에서 접근 가능하도록 제공
+   - MiniPC의 HTTP 포트를 통해 LLM API를 외부에서 접근 가능하도록 제공
    - 실제 호출 예:  
      ```bash
-     curl -i http://<miniPC공인IP>:<HTTP포트>/v1/chat/completions \
+     curl -i http://<MiniPC공인IP>:<HTTP포트>/v1/chat/completions \
        -H "Content-Type: application/json" \
        -H "Host: llm.local" \
        -d '{"model":"YOUR_MODEL","messages":[{"role":"user","content":"ping"}]}'
@@ -78,7 +78,7 @@ miniPC를 중계점으로 외부에서 LLM API 호출을 가능하게 만든다.
 ### 2.6 향후 계획
 - HTTPS 기반 암호화 적용
 - 토큰 인증 강화를 위한 OAuth2 / JWT 도입 검토
-- miniPC → Cloudflare Tunnel 연동으로 DDNS 불필요화
+- MiniPC → Cloudflare Tunnel 연동으로 DDNS 불필요화
 - 자동 복구 모듈(systemd + health check script) 추가
 
 ---

@@ -11,9 +11,9 @@
 회사 내부망의 LLM 서버(172.21.113.31:4000)를 외부(집)에서 안전하게 호출할 수 있도록 Fast Reverse Proxy (FRP) 환경 구축
 
 ### 시스템 구성
-- **사무실 LLM 서버**: frpc 클라이언트 실행 → miniPC로 아웃바운드 연결
-- **miniPC (집)**: frps 서버 실행 → 외부 접속 중계 (포트 7000, 8081)
-- **집 PC**: HTTP 요청으로 miniPC를 통해 LLM API 호출
+- **사무실 LLM 서버**: frpc 클라이언트 실행 → MiniPC로 아웃바운드 연결
+- **MiniPC (집)**: frps 서버 실행 → 외부 접속 중계 (포트 7000, 8081)
+- **집 PC**: HTTP 요청으로 MiniPC를 통해 LLM API 호출
 
 ---
 
@@ -24,7 +24,7 @@
 - x86_64 (amd64) 아키텍처 확인
 - 자동 다운로드 스크립트 포함
 
-### ✅ 2단계: FRP 서버 설정 (miniPC)
+### ✅ 2단계: FRP 서버 설정 (MiniPC)
 - `configs/frps.toml` 파일 작성
   - bindPort: 7000 (제어 포트)
   - vhostHTTPPort: 8081 (HTTP 포트)
@@ -33,7 +33,7 @@
 
 ### ✅ 3단계: FRP 클라이언트 설정 (사무실)
 - `configs/frpc.toml` 파일 작성
-  - serverAddr: 110.13.119.7 (miniPC 공인 IP)
+  - serverAddr: 110.13.119.7 (MiniPC 공인 IP)
   - serverPort: 7000
   - LLM API 프록시 설정 (172.21.113.31:4000)
   - customDomains: ["llm.local"]
@@ -44,7 +44,7 @@
 - 로그 자동 관리 (/var/log/frp/)
 
 ### ✅ 5단계: 배포 자동화
-- `scripts/install-frps.sh` 작성 (miniPC용)
+- `scripts/install-frps.sh` 작성 (MiniPC용)
   - FRP 다운로드 및 설치
   - 설정 파일 배포
   - systemd 서비스 등록
@@ -117,7 +117,7 @@
 - **아키텍처**: x86_64 (amd64)
 
 ### 네트워크 정보
-- **miniPC IP**: 192.168.50.196 (내부), 110.13.119.7 (공인)
+- **MiniPC IP**: 192.168.50.196 (내부), 110.13.119.7 (공인)
 - **LLM 서버 IP**: 172.21.113.31
 - **LLM API 포트**: 4000
 - **FRP 제어 포트**: 7000
@@ -142,7 +142,7 @@
 
 ## 다음 단계 (실제 배포)
 
-### miniPC에서 실행
+### MiniPC에서 실행
 ```bash
 cd ~/frps
 sudo bash scripts/install-frps.sh
@@ -154,7 +154,7 @@ cd /path/to/frps
 sudo bash scripts/install-frpc.sh
 ```
 
-### 연결 테스트 (miniPC 또는 집 PC에서)
+### 연결 테스트 (MiniPC 또는 집 PC에서)
 ```bash
 cd ~/frps
 bash scripts/test-frp.sh
@@ -182,7 +182,7 @@ curl -H "Host: llm.local" \
 
 ## 테스트 방법
 
-### 1. FRP 서버 상태 확인 (miniPC)
+### 1. FRP 서버 상태 확인 (MiniPC)
 ```bash
 sudo systemctl status frps
 sudo journalctl -u frps -f
@@ -196,7 +196,7 @@ sudo journalctl -u frpc -f
 
 ### 3. 포트 확인
 ```bash
-# miniPC에서 실행
+# MiniPC에서 실행
 sudo netstat -tlnp | grep -E '7000|8081'
 ```
 
@@ -227,7 +227,7 @@ bash scripts/test-llm-api.sh    # LLM API 테스트
 - ✅ systemd 서비스 자동 관리
 
 ### 배포 준비 완료
-- miniPC에서 `install-frps.sh` 실행 준비 완료
+- MiniPC에서 `install-frps.sh` 실행 준비 완료
 - 사무실 서버에서 `install-frpc.sh` 실행 준비 완료
 - 테스트 스크립트로 즉시 검증 가능
 

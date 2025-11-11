@@ -12,10 +12,11 @@ proxy:
   host: 30.30.30.27
   port: 8080
 
-# 대상 서버 설정 (LLM 서버)
+# 대상 서버 설정 (MainPC Ollama LLM)
+# 테스트 흐름: MainPC → MiniPC → MainPC Ollama
 target_server:
-  host: 127.0.0.1        # 개발: localhost mock 서버
-  port: 4000
+  host: 127.0.0.1        # MainPC Ollama (localhost:11434/v1)
+  port: 11434
 
 # 로깅 설정
 logging:

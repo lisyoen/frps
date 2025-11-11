@@ -77,12 +77,11 @@ git message 는 한국어로 생성해야 합니다.
      - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
      - 집 네트워크 (공인 IP: 110.13.119.7)
      - 접속 방식: SSH Remote (집) 또는 Guacamole (회사)
-     - **터널 서버 가동**: MiniPC에 직접 접속했을 때만 서버 시작/중지 가능
-       - MainPC에서 작업 시 MiniPC 서버 제어 불가 → 사용자에게 요청
    - **MainPC (192.168.50.102)**:
      - Windows 11 Pro
      - Node.js 22.20.0, Python 3.11.8
      - 집 네트워크 (공인 IP: 110.13.119.7)
+     - **SSH 접근**: MiniPC에 SSH 접속 가능 (lisyoen@192.168.50.196)
      - **Ollama LLM 서버 가동 중**: http://localhost:11434/v1
        - 모델: qwen3-coder:30b (코딩 전문, Tool Calling 지원)
        - API Key: ollama (아무 문자열 - 인증 불필요)
@@ -94,9 +93,13 @@ git message 는 한국어로 생성해야 합니다.
 
 5. **서버 가동 규칙** ⚠️
    - **MiniPC 터널 서버 제어**:
-     - MiniPC에 직접 접속했을 때만 서버 시작/중지 가능
-     - MainPC에서 작업 중일 때는 사용자에게 "MiniPC 터널 서버를 시작해주세요" 요청
-     - SSH Remote로 MiniPC 접속 시에만 직접 제어
+     - ✅ **제어 가능**: MiniPC 직접 접속 또는 MainPC에서 SSH 원격 제어
+       - MiniPC SSH Remote: 직접 제어
+       - MainPC: SSH 명령어로 원격 제어 가능
+         ```bash
+         ssh lisyoen@192.168.50.196 "command"
+         ```
+     - ❌ **제어 불가**: 회사에서 접속 시 (공인 IP 접근 제한)
    - **MainPC Ollama 서버**:
      - 항상 가동 중 (http://localhost:11434/v1)
      - 로컬 테스트용으로 자유롭게 활용

@@ -1,12 +1,12 @@
 # Current Session
 
-**세션 ID**: session-20251112-001-tunnel-server-impl
+**세션 ID**: session-20251112-002-tunnel-client-impl
 
-**상태**: ✅ 완료
+**상태**: 🚧 진행 중
 
-**작업**: MiniPC 터널 서버 구현 완료
+**작업**: MainPC 터널 클라이언트 구현
 
-**상세**: `.github/sessions/session-20251112-001-tunnel-server-impl.md` 참조
+**상세**: `.github/sessions/session-20251112-002-tunnel-client-impl.md` 참조
 
 ---
 

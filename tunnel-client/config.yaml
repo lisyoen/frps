@@ -1,0 +1,35 @@
+# Tunnel Client Configuration
+
+# 터널 서버 설정 (MiniPC)
+tunnel_server:
+  host: 192.168.50.196  # 개발: MiniPC 로컬 IP, 운영: 공인 IP (110.13.119.7)
+  command_port: 8089     # 커맨드 채널
+  data_port: 8091        # 데이터 채널
+
+# 프록시 설정 (회사 프록시)
+proxy:
+  enabled: false         # 개발: false, 운영: true
+  host: 30.30.30.27
+  port: 8080
+
+# 대상 서버 설정 (LLM 서버)
+target_server:
+  host: 127.0.0.1        # 개발: localhost mock 서버
+  port: 4000
+
+# 로깅 설정
+logging:
+  level: DEBUG           # DEBUG, INFO, WARNING, ERROR
+  file: client.log
+  console: true
+
+# 재연결 설정
+reconnect:
+  enabled: true
+  delay: 5               # 재연결 대기 시간 (초)
+  max_attempts: 0        # 0 = 무한 재시도
+
+# 통계
+stats:
+  enabled: true
+  interval: 60           # 통계 출력 간격 (초)

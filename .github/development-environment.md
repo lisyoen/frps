@@ -2,7 +2,7 @@
 
 ## Hosts
 
-### DESKTOP-HOME (MainPC, 회사 업무용)
+### MainPC (회사 업무용)
 - **Role**: Development PC (회사 개발용)
 - **OS**: Windows 11 Pro 10.0.26100
 - **IP**: 192.168.50.102/24
@@ -18,7 +18,7 @@
 - **MAC**: 68-1d-ef-4e-2c-ad
 - **Gateway**: 192.168.50.1
 - **Open Ports**: 22, 80, 3000, 3389, 5432, 8080, 8088, 8500, 8888
-- **Current Access**: Remote connection from DESKTOP-HOME (HomePC)
+- **Current Access**: Remote connection from MainPC
 - **Location**: Home network
 - **Docker Networks**: 
   - br-2756b4ad2294: 172.18.0.1/16
@@ -47,7 +47,7 @@
 
 ## Runtime Environments
 
-### DESKTOP-HOME (win-dev)
+### MainPC
 - **Node.js**: 22.20.0
 - **Python**: 3.11.8
 - **Git**: 2.50.1
@@ -98,15 +98,15 @@
 
 ### LAN Devices (192.168.50.0/24)
 - **Gateway**: 192.168.50.1 (RT-AX53U-AC60)
-- **DESKTOP-HOME**: 192.168.50.102
+- **MainPC**: 192.168.50.102
 - **MiniPC**: 192.168.50.196
 - **LG TV**: 192.168.50.250
 - **iPhone**: 192.168.50.160
 - **Total Devices**: 15
 
 ### Security Notes
-- **NetBIOS**: Open on 192.168.50.102 (port 139)
-- **SMB**: Open on 192.168.50.102 (port 445)
+- **NetBIOS**: Open on MainPC (192.168.50.102, port 139)
+- **SMB**: Open on MainPC (192.168.50.102, port 445)
 - **RDP**: Open on 192.168.50.196 (port 3389)
 
 ## LLM Configuration
@@ -129,15 +129,15 @@
   - tunnel-server 구동 (ports 8089, 8091)
   - systemd 서비스 등록 예정
   
-- **Client Development**: DESKTOP-HOME (HomePC, 192.168.50.102, Windows 11)
+- **Client Development**: MainPC (192.168.50.102, Windows 11)
   - tunnel-client.py 개발 (Python)
   - Git 작업
   - MiniPC와 직접 연결 테스트 (프록시 없이)
   - HTTP CONNECT 프록시 시뮬레이션
 
 **개발 절차**:
-1. HomePC에서 tunnel-client.py 작성
-2. HomePC → MiniPC (192.168.50.196:8089, 8091) 직접 연결
+1. MainPC에서 tunnel-client.py 작성
+2. MainPC → MiniPC (192.168.50.196:8089, 8091) 직접 연결
 3. 로컬 네트워크에서 end-to-end 테스트
 4. 프록시 시뮬레이션 코드 추가 (use_proxy 플래그)
 
@@ -155,13 +155,13 @@
   - MiniPC:8089 커맨드 채널 영구 연결
   - LLM 서버(172.21.113.31:4000) 프록시
   
-- **User**: HomePC (집)
+- **User**: MainPC (집)
   - http://110.13.119.7:8091/v1/chat/completions 호출
   - MiniPC를 통해 회사 LLM 접근
 
 **운영 시나리오**:
 ```
-HomePC (집)
+MainPC (집)
     ↓ HTTP
 MiniPC:8091 (집, 공인 IP)
     ↓ 터널 (8089 커맨드, 8091 데이터)

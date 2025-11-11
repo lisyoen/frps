@@ -215,9 +215,14 @@ class TunnelServer:
             if first_byte in b'GPHPDO':  # GET, POST, HEAD, PUT, DELETE, OPTIONS
                 self.logger.debug(f"HTTP 요청 감지: {client_ip}")
                 await self._handle_client_request(reader, writer, client_ip, first_byte)
-            else:
+            elif first_byte == b'T':  # 터널 식별자
                 self.logger.debug(f"SubPC 터널 연결 감지: {client_ip}")
-                await self._handle_tunnel_connection(reader, writer, client_ip, first_byte)
+                # 'T'는 식별자이므로 relay에 포함하지 않음 (빈 바이트)
+                await self._handle_tunnel_connection(reader, writer, client_ip, b'')
+            else:
+                self.logger.warning(f"알 수 없는 연결: {client_ip}, first_byte={first_byte}")
+                writer.close()
+                await writer.wait_closed()
         
         except asyncio.TimeoutError:
             self.logger.warning(f"연결 타임아웃: {addr}")

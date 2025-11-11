@@ -77,7 +77,7 @@ git message 는 한국어로 생성해야 합니다.
      - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
      - 집 네트워크 (공인 IP: 110.13.119.7)
      - 접속 방식: SSH Remote (집) 또는 Guacamole (회사)
-   - **DESKTOP-HOME (192.168.50.102)**:
+   - **MainPC (192.168.50.102)**:
      - Windows 11 Pro
      - Node.js 22.20.0, Python 3.11.8
      - 집 네트워크 (공인 IP: 110.13.119.7)

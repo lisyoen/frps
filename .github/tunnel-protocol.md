@@ -37,38 +37,51 @@ MiniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 
 ### 개발 환경 (개발 중)
 ```
-[집]
+[집 - 로컬 네트워크 192.168.50.0/24]
+
 ┌──────────────────┐
-│   MainPC         │ ← 개발 클라이언트 (Windows 11)
-│ (192.168.50.102) │    - 터널 클라이언트 개발
-└────────┬─────────┘    - Git 작업
-         │ SSH Remote
+│   HomePC         │ ← 개발 클라이언트 (Windows 11)
+│   (MainPC)       │    - tunnel-client 개발 (Python)
+│ (192.168.50.102) │    - Git 작업
+│                  │    - 프록시 시뮬레이션 테스트
+└────────┬─────────┘    - MiniPC:8089, 8091에 직접 연결
+         │ 
+         │ ① SSH Remote (서버 개발 시)
+         │ ② HTTP 직접 연결 (클라이언트 테스트 시)
          ↓
 ┌────────────────────┐
 │     MiniPC          │ ← 개발 서버 (Ubuntu/Linux Mint 22)
-│ (192.168.50.196)   │    - 터널 서버 개발
-│  8089: 커맨드 채널  │    - 테스트 실행
-│  8091: 데이터 채널  │
+│ (192.168.50.196)   │    - tunnel-server 개발 완료 ✅
+│  8089: 커맨드 채널  │    - HomePC 클라이언트와 로컬 테스트
+│  8091: 데이터 채널  │    - 모든 연결 수락 (0.0.0.0)
 └─────────────────────┘
+
+개발 절차:
+1. HomePC에서 tunnel-client.py 개발
+2. HomePC → MiniPC 직접 연결 테스트 (프록시 없이)
+3. HTTP CONNECT 프록시 시뮬레이션 추가
+4. 로컬 LLM 서버 mock으로 end-to-end 테스트
 ```
 
 ### 운영 환경 (개발 완료 후)
 ```
 [집]                         [회사 프록시]              [회사 내부망]
 ┌──────────────────┐         30.30.30.27:8080         ┌──────────────┐
-│  클라이언트       │                                  │    SubPC      │
-│  (MainPC)        │                                  │  (항상 켜짐)  │
+│  사용자           │                                  │    SubPC      │
+│  (HomePC/MainPC) │                                  │  (항상 켜짐)  │
 └────────┬─────────┘                                  └──────┬───────┘
          │ HTTP                                              │
-         │                                                   │ HTTP CONNECT
+         │ 110.13.119.7:8091                                 │ HTTP CONNECT
          ↓                                                   │ (터널 유지)
 ┌────────────────────┐                                      │
 │     MiniPC          │                                      │
 │  (터널 서버)        │ ←────────────────────────────────────┘
+│  공인 IP           │
+│  110.13.119.7      │
 │                     │
 │  8089: 커맨드 채널  │ ←─── SubPC 영구 연결 (명령 수신)
-│  8091: 데이터 채널  │ ←─── 클라이언트 HTTP 요청
-│                     │ ←─── SubPC 요청별 연결 (HTTP 터널)
+│  8091: 데이터 채널  │ ←─── 사용자 HTTP 요청 (집)
+│                     │ ←─── SubPC 요청별 연결 (회사)
 └─────────────────────┘
 
                                                         ┌──────────────────┐
@@ -79,6 +92,13 @@ MiniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
                                                                │ HTTP
                                                                │
                                                         SubPC가 프록시 전달
+
+운영 시나리오:
+1. 집(HomePC): http://110.13.119.7:8091/v1/chat/completions 호출
+2. MiniPC: SubPC에게 NEW_CONN 전송 (8089 커맨드 채널)
+3. SubPC: 회사 프록시 경유하여 MiniPC:8091에 터널 연결
+4. SubPC: 회사 내부망 LLM 서버(172.21.113.31:4000)로 요청 전달
+5. 응답 역방향 전송
 ```
 
 ---
@@ -95,32 +115,35 @@ MiniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 
 ### Phase 2: HTTP 요청 처리 (요청마다 반복)
 ```
-1. 클라이언트(MainPC)가 MiniPC:8090에 HTTP 요청
-   - 예: POST http://110.13.119.7:8090/v1/chat/completions
+1. 클라이언트(HomePC/MainPC)가 MiniPC:8091에 HTTP 요청
+   - 개발 시: http://192.168.50.196:8091/v1/chat/completions (로컬)
+   - 운영 시: http://110.13.119.7:8091/v1/chat/completions (공인 IP)
 
 2. MiniPC가 클라이언트 소켓 accept()
-   - client_ip 추출 (예: 192.168.50.100)
+   - client_ip 추출 (예: 192.168.50.102 - HomePC)
    - pending_clients[client_ip] = client_socket 저장
 
 3. MiniPC → SubPC (8089 커맨드 채널):
-   "NEW_CONN 192.168.50.100 172.21.113.31:4000\n"
+   "NEW_CONN 192.168.50.102 172.21.113.31:4000\n"
    
 4. SubPC가 커맨드 수신 후:
    a) 대상 서버 파싱: 172.21.113.31:4000
-   b) MiniPC:8090에 HTTP CONNECT 터널 연결 (새 소켓)
-   c) MiniPC에게 "READY 192.168.50.100\n" 응답 (8089로)
+   b) MiniPC:8091에 HTTP CONNECT 터널 연결 (새 소켓)
+      - 개발 시: HomePC 클라이언트가 직접 연결 (프록시 없이)
+      - 운영 시: 회사 프록시(30.30.30.27:8080) 경유
+   c) MiniPC에게 "READY 192.168.50.102\n" 응답 (8089로)
 
 5. MiniPC가 READY 수신:
-   - pending_clients[192.168.50.100] 찾기
+   - pending_clients[192.168.50.102] 찾기
    - client_socket ↔ tunnel_socket 양방향 relay 시작
 
 6. 데이터 전송:
-   클라이언트 → MiniPC:8090 → SubPC → 172.21.113.31:4000
-   클라이언트 ← MiniPC:8090 ← SubPC ← 172.21.113.31:4000
+   HomePC → MiniPC:8091 → SubPC → 172.21.113.31:4000
+   HomePC ← MiniPC:8091 ← SubPC ← 172.21.113.31:4000
 
 7. HTTP 요청 완료 후:
    - 양쪽 소켓 종료
-   - pending_clients[192.168.50.100] 삭제
+   - pending_clients[192.168.50.102] 삭제
 
 8. 다음 요청은 2번부터 반복
 ```
@@ -141,12 +164,14 @@ MiniPC(집)와 SubPC(회사) 간의 TCP 터널을 구축하여, 집에서 회사
 NEW_CONN <client_ip> <target_host>:<target_port>\n
 
 예시:
-NEW_CONN 192.168.50.100 172.21.113.31:4000\n
+NEW_CONN 192.168.50.102 172.21.113.31:4000\n
 ```
 **의미**: 클라이언트(client_ip)의 요청을 target_host:target_port로 터널링 요청
 
 **파라미터:**
 - `client_ip`: 클라이언트의 IP 주소 (매칭 키)
+  - 개발 시: 192.168.50.102 (HomePC)
+  - 운영 시: 192.168.50.102 (HomePC) 또는 기타 집 장비
 - `target_host:target_port`: 회사 내부망 대상 서버
 
 #### 2. READY (SubPC → MiniPC)
@@ -154,9 +179,9 @@ NEW_CONN 192.168.50.100 172.21.113.31:4000\n
 READY <client_ip>\n
 
 예시:
-READY 192.168.50.100\n
+READY 192.168.50.102\n
 ```
-**의미**: MiniPC:8090에 터널 연결 완료, client_ip로 매칭하여 relay 시작
+**의미**: MiniPC:8091에 터널 연결 완료, client_ip로 매칭하여 relay 시작
 
 **파라미터:**
 - `client_ip`: 대기 중인 클라이언트 IP (pending_clients에서 찾기)
@@ -166,13 +191,13 @@ READY 192.168.50.100\n
 ERROR <client_ip> <error_message>\n
 
 예시:
-ERROR 192.168.50.100 Connection refused\n
+ERROR 192.168.50.102 Connection refused\n
 ```
 **의미**: 대상 서버 연결 실패, 클라이언트에게 에러 응답
 
 ---
 
-## 6. 데이터 채널 (8090 포트)
+## 6. 데이터 채널 (8091 포트)
 
 ### 특징
 - **순수 TCP Relay**: HTTP 프로토콜 수정 없이 그대로 전달
@@ -181,17 +206,19 @@ ERROR 192.168.50.100 Connection refused\n
 
 ### TCP 소켓 동작
 ```
-MiniPC:8090 LISTEN
+MiniPC:8091 LISTEN
 
-클라이언트1 연결 → accept() → socket_A (192.168.50.100:54321)
-클라이언트2 연결 → accept() → socket_B (192.168.50.101:54322)
+개발 환경:
+HomePC 연결 → accept() → socket_A (192.168.50.102:54321)
+HomePC(테스트용 클라이언트) → socket_B (192.168.50.102:54322)
+HomePC(SubPC 시뮬레이션) → socket_C (192.168.50.102:54323)
 
-SubPC 연결1 → accept() → socket_C (회사프록시IP:random)
-SubPC 연결2 → accept() → socket_D (회사프록시IP:random)
+운영 환경:
+사용자 연결 → accept() → socket_A (192.168.50.102:54321)
+SubPC 터널 → accept() → socket_C (회사프록시IP:random)
 
 매칭:
 socket_A ↔ socket_C (client_ip로 매칭)
-socket_B ↔ socket_D (client_ip로 매칭)
 ```
 
 ---
@@ -270,32 +297,50 @@ async def relay(reader1, writer1, reader2, writer2):
     )
 ```
 
-### SubPC 클라이언트 (Python 예시)
+### SubPC/HomePC 클라이언트 (Python 예시)
 ```python
-async def connect_tunnel():
-    """MiniPC:8089에 영구 연결"""
-    reader, writer = await connect_via_proxy(
-        "110.13.119.7", 8089,
-        proxy="30.30.30.27:8080"
-    )
+async def connect_tunnel(minipc_host, minipc_port, use_proxy=False):
+    """MiniPC:8089에 영구 연결
+    
+    개발 시: use_proxy=False, minipc_host="192.168.50.196" (로컬)
+    운영 시: use_proxy=True, minipc_host="110.13.119.7" (공인 IP)
+    """
+    if use_proxy:
+        # 운영 환경: 회사 프록시 경유
+        reader, writer = await connect_via_proxy(
+            minipc_host, minipc_port,
+            proxy="30.30.30.27:8080"
+        )
+    else:
+        # 개발 환경: 직접 연결
+        reader, writer = await asyncio.open_connection(minipc_host, minipc_port)
     
     while True:
         line = await reader.readline()
         cmd, client_ip, target = line.decode().strip().split()
         
         if cmd == "NEW_CONN":
-            # MiniPC:8090에 새 터널 연결
-            await handle_new_connection(client_ip, target, writer)
+            # MiniPC:8091에 새 터널 연결
+            await handle_new_connection(
+                client_ip, target, writer, 
+                minipc_host, 8091, use_proxy
+            )
 
-async def handle_new_connection(client_ip, target, cmd_writer):
+async def handle_new_connection(client_ip, target, cmd_writer, 
+                                 minipc_host, data_port, use_proxy):
     """새 HTTP 터널 연결"""
     host, port = target.split(":")
     
-    # MiniPC:8090에 HTTP CONNECT 터널
-    tunnel_reader, tunnel_writer = await connect_via_proxy(
-        "110.13.119.7", 8090,
-        proxy="30.30.30.27:8080"
-    )
+    # MiniPC:8091에 연결 (프록시 여부에 따라 분기)
+    if use_proxy:
+        tunnel_reader, tunnel_writer = await connect_via_proxy(
+            minipc_host, data_port,
+            proxy="30.30.30.27:8080"
+        )
+    else:
+        tunnel_reader, tunnel_writer = await asyncio.open_connection(
+            minipc_host, data_port
+        )
     
     # 대상 서버 연결
     target_reader, target_writer = await asyncio.open_connection(host, int(port))

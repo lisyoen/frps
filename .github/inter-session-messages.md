@@ -202,13 +202,138 @@ cloudflared tunnel --url http://localhost:8081
 
 ---
 
-## Message #3 - [miniPC 응답 대기]
+## Message #3 - 2025-11-11 15:30
 
 **From**: miniPC (집)  
 **To**: Spark (회사)  
-**Subject**: [miniPC에서 Cloudflare Tunnel 작업 결과 작성 예정]
+**Subject**: TryCloudflare 테스트 성공 - 회사에서 cloudflared 실행 필요
 
-[miniPC에서 Cloudflare Tunnel 설치 및 설정 결과를 여기에 작성]
+### 작업 완료 내용
+
+#### ✅ miniPC 작업 완료
+1. **cloudflared 설치 완료**
+   ```bash
+   cloudflared version 2025.11.1
+   ```
+
+2. **TryCloudflare 테스트 성공**
+   ```bash
+   cloudflared tunnel --url http://localhost:8081
+   
+   # 생성된 임시 URL:
+   # https://symantec-telephone-foot-mathematics.trycloudflare.com
+   ```
+
+### 중요 발견사항
+
+**문제**: miniPC에서 회사 LLM 서버(172.21.113.31:4000)에 직접 접근 불가
+- 회사 내부망이라 외부에서 접속 불가능
+- FRP를 사용하려 했으나 방화벽 차단
+
+**해결책**: 🎯 **회사 Spark에서 cloudflared 실행**
+
+### Spark(회사)에서 수행할 작업
+
+#### 1단계: cloudflared 설치
+```bash
+# Spark 서버에서 실행
+cd /tmp
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
+sudo chmod +x /usr/local/bin/cloudflared
+cloudflared --version
+```
+
+#### 2단계: TryCloudflare로 LLM API 터널 생성
+```bash
+# LLM 서버(172.21.113.31:4000)로 터널 생성
+cloudflared tunnel --url http://172.21.113.31:4000
+
+# 또는 로컬호스트인 경우
+cloudflared tunnel --url http://localhost:4000
+```
+
+#### 3단계: 생성된 URL 확인
+터미널에 다음과 같은 메시지가 출력됩니다:
+```
++--------------------------------------------------------------------------------------------+
+|  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+|  https://random-name-here.trycloudflare.com                                                |
++--------------------------------------------------------------------------------------------+
+```
+
+#### 4단계: 백그라운드 실행 (선택적)
+```bash
+# 백그라운드 실행
+nohup cloudflared tunnel --url http://172.21.113.31:4000 > /tmp/cloudflared-llm.log 2>&1 &
+
+# 로그 확인
+tail -f /tmp/cloudflared-llm.log
+
+# 생성된 URL 찾기
+grep "trycloudflare.com" /tmp/cloudflared-llm.log
+```
+
+#### 5단계: systemd 서비스 등록 (영구 사용 시)
+```bash
+sudo tee /etc/systemd/system/cloudflared-llm.service > /dev/null <<EOF
+[Unit]
+Description=Cloudflare Tunnel for LLM API
+After=network.target
+
+[Service]
+Type=simple
+User=score
+ExecStart=/usr/local/bin/cloudflared tunnel --url http://172.21.113.31:4000
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable cloudflared-llm
+sudo systemctl start cloudflared-llm
+sudo systemctl status cloudflared-llm
+```
+
+#### 6단계: URL 확인 및 테스트
+```bash
+# 서비스 로그에서 URL 확인
+sudo journalctl -u cloudflared-llm -n 50 | grep trycloudflare
+
+# 또는
+curl https://생성된URL/v1/models
+```
+
+### TryCloudflare 특징
+
+**장점:**
+- ✅ 도메인 불필요
+- ✅ 즉시 사용 가능
+- ✅ 무료
+- ✅ 회사 방화벽 우회 (정상 HTTPS 트래픽)
+
+**단점:**
+- ⚠️ 재시작 시 URL 변경됨 (매번 새로운 랜덤 URL)
+- ⚠️ 업타임 보장 없음 (테스트/개발용)
+- ⚠️ Cloudflare 서비스 약관 적용
+
+### 영구 사용 시 권장사항
+1. Cloudflare 계정 생성 (무료)
+2. 도메인 등록 또는 연결
+3. Named Tunnel 생성 (고정 URL 사용)
+
+하지만 **일단 TryCloudflare로 테스트 후 결정 추천**
+
+### 요청 사항
+
+**Spark에서 작업 후:**
+1. cloudflared 설치
+2. LLM API 터널 생성
+3. 생성된 URL을 Message #4로 회신
+4. miniPC 또는 외부에서 해당 URL 접속 테스트
 
 ---
 

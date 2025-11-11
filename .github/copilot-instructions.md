@@ -77,16 +77,31 @@ git message 는 한국어로 생성해야 합니다.
      - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
      - 집 네트워크 (공인 IP: 110.13.119.7)
      - 접속 방식: SSH Remote (집) 또는 Guacamole (회사)
+     - **터널 서버 가동**: MiniPC에 직접 접속했을 때만 서버 시작/중지 가능
+       - MainPC에서 작업 시 MiniPC 서버 제어 불가 → 사용자에게 요청
    - **MainPC (192.168.50.102)**:
      - Windows 11 Pro
      - Node.js 22.20.0, Python 3.11.8
      - 집 네트워크 (공인 IP: 110.13.119.7)
+     - **Ollama LLM 서버 가동 중**: http://localhost:11434/v1
+       - 모델: qwen3-coder:30b (코딩 전문, Tool Calling 지원)
+       - API Key: ollama (아무 문자열 - 인증 불필요)
+       - 로컬 테스트에 활용 가능
    - **Spark (172.21.113.31)**:
      - 회사 LLM 서버 (ARM64)
      - 외부 네트워크 제한 있음
      - FRP 연결 시 주의 필요
 
-5. **서버 간 메시지 확인**
+5. **서버 가동 규칙** ⚠️
+   - **MiniPC 터널 서버 제어**:
+     - MiniPC에 직접 접속했을 때만 서버 시작/중지 가능
+     - MainPC에서 작업 중일 때는 사용자에게 "MiniPC 터널 서버를 시작해주세요" 요청
+     - SSH Remote로 MiniPC 접속 시에만 직접 제어
+   - **MainPC Ollama 서버**:
+     - 항상 가동 중 (http://localhost:11434/v1)
+     - 로컬 테스트용으로 자유롭게 활용
+
+6. **서버 간 메시지 확인**
    - `.github/inter-session-messages.md` 파일 확인
    - MiniPC와 Spark 간 작업 정보 공유
    - 응답 필요 시 메시지 추가 후 Git 커밋/푸시

@@ -37,14 +37,6 @@
   - ⚠️ **FRP connection issue**: Cannot connect to home MiniPC (110.13.119.7:7000)
   - ℹ️ Requires network policy review or VPN/proxy setup
 
-### DESKTOP-OLDWIN1 (win-backup)
-- **Role**: Backup/Secondary PC
-- **OS**: Windows 10 Pro 10.0.19045
-- **CPU**: AMD Ryzen 5 2600 (6 cores, 12 threads)
-- **Memory**: 8GB
-- **GPU**: NVIDIA GeForce GTX 1060 3GB
-- **Disks**: C: 133GB/223GB, E: 1400GB/1863GB
-
 ## Runtime Environments
 
 ### MainPC
@@ -111,7 +103,16 @@
 
 ## LLM Configuration
 
-### OpenAI API
+### MainPC Ollama (로컬 LLM)
+- **Endpoint**: http://localhost:11434/v1
+- **API Provider**: OpenAI Compatible
+- **API Key**: ollama (아무 문자열 - 인증 불필요)
+- **Model**: qwen3-coder:30b
+- **Features**: 코딩 전문, Tool Calling 지원
+- **Status**: 항상 가동 중
+- **Usage**: 로컬 개발 및 터널 테스트용
+
+### OpenAI API (클라우드)
 - **API Key**: Configured in environment variables
 - **Base URL**: https://api.openai.com/v1
 - **Model**: gpt-4o

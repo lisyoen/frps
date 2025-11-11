@@ -22,18 +22,81 @@ git message 는 한국어로 생성해야 합니다.
 
 모르는 내용이 있으면 사용자에게 ChatGPT에게 물어보라고 요청합니다.
 
-## 서버 간 메시지 확인 (중요!)
+## 작업 환경 식별 (최우선!)
 
-### 작업 시작 전 메시지 확인
-**Git pull 후 `.github/inter-session-messages.md` 파일을 확인하여 다른 서버에서 온 메시지가 있는지 확인합니다.**
+### 세션 시작 시 필수 확인 절차
+**새 작업/세션을 시작할 때마다 다음 순서를 반드시 따릅니다:**
 
-이 파일은 miniPC와 Spark 간 작업 중 주고받는 정보를 공유하는 용도입니다:
-- 상대 서버에서 발견한 문제
-- 대안 방안 제시
-- 작업 결과 공유
-- 요청 사항 전달
+1. **Git 동기화**
+   ```bash
+   git pull
+   ```
 
-**응답이 필요한 경우 새 메시지를 추가하고 Git 커밋/푸시합니다.**
+2. **현재 장비 IP 확인** (필수!)
+   - IP 주소로 현재 작업 중인 장비 식별
+   - Linux: `ip addr show` 또는 `hostname -I`
+   - Windows: `ipconfig`
+   - `.github/development-environment.md`의 Hosts 정보와 대조
+
+3. **접속 방식 확인** (miniPC만 해당)
+   - miniPC는 두 가지 방식으로 접속 가능:
+     - **집에서**: MainPC(192.168.50.102)에서 SSH Remote 접속
+       - `$SSH_CLIENT` 환경 변수로 확인: `192.168.50.102`
+       - VSCode Remote SSH 사용
+     - **회사에서**: Guacamole을 통한 로컬 GUI 접속
+       - `$DISPLAY` 환경 변수 존재 (`:0` 또는 `:1`)
+       - VSCode 직접 실행
+   - 확인 명령어:
+     ```bash
+     # SSH 접속 확인
+     echo $SSH_CLIENT  # 값 있으면 Remote SSH
+     
+     # GUI 접속 확인
+     echo $DISPLAY     # 값 있으면 로컬 GUI
+     ```
+   
+4. **장비별 특성 안내**
+   - **miniPC (192.168.50.196)**: 
+     - Docker 사용 가능
+     - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
+     - 집 네트워크 (공인 IP: 110.13.119.7)
+     - 접속 방식: SSH Remote (집) 또는 Guacamole (회사)
+   - **DESKTOP-HOME (192.168.50.102)**:
+     - Windows 11 Pro
+     - Node.js 22.20.0, Python 3.11.8
+     - 집 네트워크 (공인 IP: 110.13.119.7)
+   - **Spark (172.21.113.31)**:
+     - 회사 LLM 서버 (ARM64)
+     - 외부 네트워크 제한 있음
+     - FRP 연결 시 주의 필요
+
+5. **서버 간 메시지 확인**
+   - `.github/inter-session-messages.md` 파일 확인
+   - miniPC와 Spark 간 작업 정보 공유
+   - 응답 필요 시 메시지 추가 후 Git 커밋/푸시
+
+**예시 출력:**
+```
+✅ Git pull 완료
+✅ 현재 장비: miniPC (192.168.50.196)
+   📍 접속 방식: 집에서 MainPC Remote SSH (192.168.50.102)
+   - Docker 사용 가능
+   - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
+   - 집 네트워크 (공인 IP: 110.13.119.7)
+✅ 서버 간 메시지: 없음
+```
+
+또는
+
+```
+✅ Git pull 완료
+✅ 현재 장비: miniPC (192.168.50.196)
+   📍 접속 방식: 회사에서 Guacamole 로컬 GUI
+   - Docker 사용 가능
+   - Linux 환경 (Node.js 20.19.1, Python 3.12.3)
+   - 집 네트워크 (공인 IP: 110.13.119.7)
+✅ 서버 간 메시지: 없음
+```
 
 ## 개발 환경 정보 (필수 참고!)
 

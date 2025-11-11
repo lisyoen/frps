@@ -2,21 +2,27 @@
 
 ## Hosts
 
-### DESKTOP-HOME (win-dev)
-- **Role**: Development PC
+### DESKTOP-HOME (MainPC, 회사 업무용)
+- **Role**: Development PC (회사 개발용)
 - **OS**: Windows 11 Pro 10.0.26100
 - **IP**: 192.168.50.102/24
 - **MAC**: 9C-6B-00-8D-95-70
 - **Gateway**: 192.168.50.1 (ASUS RT-AX53U)
 - **Public IP**: 110.13.119.7
+- **Location**: Home network
 
 ### miniPC (Linux)
 - **Role**: Development Server
 - **OS**: Linux (Ubuntu-based)
-- **IP**: 192.168.50.196
+- **IP**: 192.168.50.196/24 (Local), 110.13.119.7 (Public)
 - **MAC**: 68-1d-ef-4e-2c-ad
 - **Gateway**: 192.168.50.1
 - **Open Ports**: 22, 80, 3000, 3389, 5432, 8080, 8088, 8500, 8888
+- **Current Access**: Remote connection from DESKTOP-HOME (HomePC)
+- **Location**: Home network
+- **Docker Networks**: 
+  - br-2756b4ad2294: 172.18.0.1/16
+  - docker0: 172.17.0.1/16
 
 ### Office LLM Server (Spark - DGX)
 - **Role**: Company LLM Server

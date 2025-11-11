@@ -1,0 +1,11 @@
+# HTTP Tunnel Server Dependencies
+# Python 3.12+ required
+
+# Core async libraries (built-in with Python 3.12)
+# asyncio - built-in
+
+# Optional: YAML configuration
+pyyaml>=6.0.1
+
+# Optional: Enhanced logging
+colorlog>=6.8.0

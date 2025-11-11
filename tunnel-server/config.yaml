@@ -1,0 +1,33 @@
+# HTTP Tunnel Server Configuration
+
+server:
+  # Command channel port (SubPC permanent connection)
+  command_port: 8089
+  
+  # Data channel port (HTTP traffic)
+  data_port: 8091
+  
+  # Bind address (0.0.0.0 for all interfaces)
+  bind_address: "0.0.0.0"
+
+timeouts:
+  # Timeout for SubPC to respond after NEW_CONN (seconds)
+  pending_timeout: 5
+  
+  # Read timeout for relay operations (seconds)
+  relay_timeout: 30
+
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  
+  # Log file path (null for stdout only)
+  file: null
+  
+  # Enable colored output
+  colored: true
+
+# Default target for testing (can be overridden by NEW_CONN)
+default_target:
+  host: "172.21.113.31"
+  port: 4000

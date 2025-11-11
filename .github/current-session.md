@@ -1,22 +1,19 @@
 ```markdown
 # Current Session
 
-**세션 ID**: session-20251111-002-frpc-deploy-at-office
+**세션 ID**: session-20251111-003-frps-install-minipc
 
-**상태**: 대기 중 ⏸️ (회사 LLM 서버에서 재개 예정)
+**상태**: 대기 중 ⏸️ (집 miniPC에서 작업 예정)
 
-**작업**: 회사 LLM 서버에 FRP 클라이언트(frpc) 설치
+**작업**: 집 miniPC에 FRP 서버(frps) 설치
 
-**상세**: `.github/sessions/session-20251111-002-frpc-deploy-at-office.md` 참조
+**상세**: `.github/sessions/session-20251111-003-frps-install-minipc.md` 참조
 
 ---
 
-## 마지막 완료 세션
+## 최근 세션 목록
 
-**세션 ID**: session-20251111-001-frp-setup  
-**완료일**: 2025-11-11  
-**작업**: FRP 역방향 프록시 환경 구축 완료
-
-**상세**: `.github/sessions/session-20251111-001-frp-setup.md` 참조
+**session-20251111-002**: 회사 Spark FRP 클라이언트 설치 (⏸️ 네트워크 제한으로 일시 중단)  
+**session-20251111-001**: FRP 환경 구축 완료 (✅ 완료)
 
 ```

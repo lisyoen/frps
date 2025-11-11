@@ -116,3 +116,56 @@
 - **Base URL**: https://api.openai.com/v1
 - **Model**: gpt-4o
 - **Status**: Active and ready for API calls
+
+---
+
+## HTTP Tunnel Development Plan
+
+### Development Environment (개발 중)
+**목적**: 집에서 tunnel-client 개발 및 로컬 테스트
+
+**구성**:
+- **Server**: MiniPC (192.168.50.196)
+  - tunnel-server 구동 (ports 8089, 8091)
+  - systemd 서비스 등록 예정
+  
+- **Client Development**: DESKTOP-HOME (HomePC, 192.168.50.102, Windows 11)
+  - tunnel-client.py 개발 (Python)
+  - Git 작업
+  - MiniPC와 직접 연결 테스트 (프록시 없이)
+  - HTTP CONNECT 프록시 시뮬레이션
+
+**개발 절차**:
+1. HomePC에서 tunnel-client.py 작성
+2. HomePC → MiniPC (192.168.50.196:8089, 8091) 직접 연결
+3. 로컬 네트워크에서 end-to-end 테스트
+4. 프록시 시뮬레이션 코드 추가 (use_proxy 플래그)
+
+### Production Environment (개발 완료 후)
+**목적**: 회사 내부망 LLM 서버를 집에서 안전하게 호출
+
+**구성**:
+- **Server**: MiniPC (공인 IP: 110.13.119.7)
+  - tunnel-server 운영 (systemd 서비스)
+  - 포트 포워딩: 8089, 8091
+  
+- **Client**: SubPC (회사 내부망, 항상 켜둠)
+  - tunnel-client 운영 (Windows 서비스)
+  - 회사 프록시(30.30.30.27:8080) 경유
+  - MiniPC:8089 커맨드 채널 영구 연결
+  - LLM 서버(172.21.113.31:4000) 프록시
+  
+- **User**: HomePC (집)
+  - http://110.13.119.7:8091/v1/chat/completions 호출
+  - MiniPC를 통해 회사 LLM 접근
+
+**운영 시나리오**:
+```
+HomePC (집)
+    ↓ HTTP
+MiniPC:8091 (집, 공인 IP)
+    ↓ 터널 (8089 커맨드, 8091 데이터)
+SubPC (회사, 프록시 경유)
+    ↓ HTTP
+LLM Server (172.21.113.31:4000, 회사 내부망)
+```

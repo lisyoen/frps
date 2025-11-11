@@ -4,9 +4,10 @@
 
 - **세션 ID**: session-20251111-002-frpc-deploy-at-office
 - **날짜**: 2025-11-11
-- **상태**: 대기 중 ⏸️
-- **작업자**: 회사 LLM 서버에서 재개 예정
+- **상태**: ⏸️ 일시 중단 (네트워크 제한으로 FRP 연결 불가)
+- **작업자**: 회사 Spark 장비에서 작업
 - **이전 세션**: session-20251111-001-frp-setup (완료)
+- **차단 이유**: 회사 방화벽에서 외부 IP(110.13.119.7) 접속 차단
 
 ## 작업 목적
 
@@ -14,15 +15,18 @@
 
 ## 작업 환경
 
-### 집 환경 (현재 완료)
+### 집 환경 (완료)
 - ✅ miniPC (110.13.119.7): FRP 서버(frps) 설치 및 실행 완료
 - ✅ Git 저장소: github.com/lisyoen/frps
 - ✅ 설정 파일: configs/frps.toml (실제 값으로 커밋됨)
 
-### 회사 환경 (작업 예정)
-- 🔄 LLM 서버 (172.21.113.31): FRP 클라이언트(frpc) 설치 필요
-- 🔄 LLM 모델: Qwen3-Coder-30B (DGX Spark)
-- 🔄 LLM API 포트: 4000 (내부), 8081 (외부 HTTP 프록시)
+### 회사 환경 (일부 완료, 연결 차단)
+- ✅ LLM 서버 (172.21.113.31): FRP 클라이언트(frpc) 설치 완료
+- ✅ Hostname: spark-9ea9
+- ✅ Architecture: ARM64 (aarch64)
+- ✅ LLM 모델: Qwen3-Coder-30B (DGX Spark)
+- ✅ LLM API 포트: 4000 (내부)
+- ❌ 외부 연결: 차단됨 (ping, FRP 포트 7000, HTTP 포트 8081 모두 타임아웃)
 
 ## 작업 계획
 
@@ -191,16 +195,87 @@ curl http://110.13.119.7:8081/v1/models
 
 ## 진행 상황 (회사에서 작업하며 업데이트)
 
-*아래 체크리스트를 작업하며 업데이트하세요*
+### 실제 작업 결과 (2025-11-11)
 
-- [ ] 저장소 클론 완료
-- [ ] configs/frpc.toml 설정 검토
-- [ ] install-frpc.sh 실행
-- [ ] frpc 서비스 정상 실행 확인
-- [ ] miniPC frps와 연결 확인
-- [ ] test-frp.sh 테스트 성공
-- [ ] test-llm-api.sh 테스트 성공
-- [ ] 세션 파일 업데이트 및 커밋
+#### ✅ 완료된 작업
+- [x] 저장소 클론 완료 (이미 존재함)
+- [x] configs/frpc.toml 설정 검토 완료
+  - serverAddr: 110.13.119.7 (miniPC 공인 IP)
+  - serverPort: 7000
+  - auth.token: deasea!1
+  - localIP: 172.21.113.31 (Spark 내부 IP)
+  - localPort: 4000 (LLM API)
+- [x] FRP 클라이언트 바이너리 설치
+  - ⚠️ 처음 AMD64 다운로드 후 "Exec format error" 발생
+  - ✅ ARM64(aarch64) 버전으로 재설치 완료
+  - Binary: `/opt/frp/frpc`
+- [x] systemd 서비스 생성 및 실행
+  - Service: `/etc/systemd/system/frpc.service`
+  - Config: `/etc/frp/frpc.toml`
+  - Status: active (running)
+
+#### ❌ 연결 실패 - 회사 네트워크 제한
+- [x] frpc 서비스는 정상 실행 중
+- [x] 하지만 miniPC(110.13.119.7:7000) 연결 실패
+- [x] 로그 오류: `dial tcp 110.13.119.7:7000: i/o timeout`
+- [x] 네트워크 테스트 결과:
+  ```bash
+  # Ping 테스트
+  ping -c 3 110.13.119.7
+  # 결과: 100% packet loss
+  
+  # Netcat 테스트
+  nc -zv -w 5 110.13.119.7 7000
+  # 결과: Connection timed out
+  
+  # HTTP 포트 테스트
+  curl -I --connect-timeout 5 http://110.13.119.7:8081
+  # 결과: Timeout was reached
+  ```
+
+#### 🔍 문제 원인 분석
+**회사 네트워크 정책으로 외부 연결 차단**
+- ❌ 외부 IP로 ping 불가
+- ❌ 외부 특정 포트(7000, 8081) 연결 불가
+- ⚠️ 아웃바운드 연결이 방화벽/프록시로 제한됨
+
+#### 📝 해결 방안 (추후 작업 필요)
+1. **네트워크 팀에 요청**
+   - 회사 방화벽에서 110.13.119.7:7000 아웃바운드 허용 요청
+   - 또는 특정 IP 대역 화이트리스트 추가
+
+2. **대안 1: Cloudflare Tunnel 사용**
+   - miniPC에 Cloudflare Tunnel 설치
+   - FRP 대신 Cloudflare Tunnel로 회사 → 집 연결
+   - 장점: HTTPS, 443 포트 사용 (일반적으로 열려있음)
+
+3. **대안 2: 회사 내부 게이트웨이 서버 경유**
+   - 회사에 외부 접속이 가능한 게이트웨이가 있다면 활용
+   - SSH 터널링 또는 Proxy 경유
+
+4. **대안 3: VPN 사용**
+   - 회사 VPN이 있다면 VPN 경유로 접속
+   - 또는 개인 VPN 서버 구축
+
+#### 📋 현재 상태
+- **FRP 클라이언트 설치**: ✅ 완료
+- **설정 파일**: ✅ 정상
+- **서비스 실행**: ✅ 정상
+- **네트워크 연결**: ❌ 차단됨 (회사 정책)
+- **작업 상태**: ⏸️ 대기 (네트워크 정책 변경 필요)
+
+---
+
+*아래 체크리스트는 원래 계획*
+
+- [x] 저장소 클론 완료
+- [x] configs/frpc.toml 설정 검토
+- [x] install-frpc.sh 실행 (수동 설치로 대체)
+- [x] frpc 서비스 정상 실행 확인
+- [❌] miniPC frps와 연결 확인 → **네트워크 차단으로 실패**
+- [❌] test-frp.sh 테스트 성공 → **연결 불가로 스킵**
+- [❌] test-llm-api.sh 테스트 성공 → **연결 불가로 스킵**
+- [ ] 세션 파일 업데이트 및 커밋 (지금 진행 중)
 
 ---
 

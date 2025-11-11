@@ -18,6 +18,19 @@
 - **Gateway**: 192.168.50.1
 - **Open Ports**: 22, 80, 3000, 3389, 5432, 8080, 8088, 8500, 8888
 
+### Office LLM Server (Spark - DGX)
+- **Role**: Company LLM Server
+- **OS**: Linux (Ubuntu-based)
+- **Architecture**: ARM64 (aarch64)
+- **Hostname**: spark-9ea9
+- **IP**: 172.21.113.31 (internal)
+- **LLM Port**: 4000 (Qwen3-Coder-30B)
+- **Network Restrictions**:
+  - ❌ **Outbound ping blocked**: Cannot ping external IPs
+  - ❌ **Outbound connections restricted**: Limited external access
+  - ⚠️ **FRP connection issue**: Cannot connect to home miniPC (110.13.119.7:7000)
+  - ℹ️ Requires network policy review or VPN/proxy setup
+
 ### DESKTOP-OLDWIN1 (win-backup)
 - **Role**: Backup/Secondary PC
 - **OS**: Windows 10 Pro 10.0.19045

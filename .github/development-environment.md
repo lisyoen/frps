@@ -2,14 +2,26 @@
 
 ## Hosts
 
-### MainPC (회사 업무용)
-- **Role**: Development PC (회사 개발용)
+### HomePC
+- **Role**: Development PC (집 개발용)
 - **OS**: Windows 11 Pro 10.0.26100
 - **IP**: 192.168.50.102/24
 - **MAC**: 9C-6B-00-8D-95-70
 - **Gateway**: 192.168.50.1 (ASUS RT-AX53U)
 - **Public IP**: 110.13.119.7
-- **Location**: Home network
+- **Location**: Home network (ASUS 공유기)
+
+### MainPC
+- **Role**: Company development PC
+- **OS**: Windows
+- **IP**: (미확인)
+- **Location**: Company network (172.21.x.x)
+
+### SubPC
+- **Role**: Company tunnel client (always-on)
+- **OS**: Windows
+- **IP**: (미확인)
+- **Location**: Company network (172.21.x.x)
 
 ### MiniPC (Linux)
 - **Role**: Development Server
@@ -18,8 +30,8 @@
 - **MAC**: 68-1d-ef-4e-2c-ad
 - **Gateway**: 192.168.50.1
 - **Open Ports**: 22, 80, 3000, 3389, 5432, 8080, 8088, 8500, 8888
-- **Current Access**: Remote connection from MainPC
-- **Location**: Home network
+- **Current Access**: Remote connection from HomePC
+- **Location**: Home network (ASUS 공유기)
 - **Docker Networks**: 
   - br-2756b4ad2294: 172.18.0.1/16
   - docker0: 172.17.0.1/16
@@ -30,6 +42,7 @@
 - **Architecture**: ARM64 (aarch64)
 - **Hostname**: spark-9ea9
 - **IP**: 172.21.113.31 (internal)
+- **Location**: Company network
 - **LLM Port**: 4000 (Qwen3-Coder-30B)
 - **Network Restrictions**:
   - ❌ **Outbound ping blocked**: Cannot ping external IPs
@@ -39,7 +52,7 @@
 
 ## Runtime Environments
 
-### MainPC
+### HomePC
 - **Node.js**: 22.20.0
 - **Python**: 3.11.8
 - **Git**: 2.50.1
@@ -90,20 +103,20 @@
 
 ### LAN Devices (192.168.50.0/24)
 - **Gateway**: 192.168.50.1 (RT-AX53U-AC60)
-- **MainPC**: 192.168.50.102
+- **HomePC**: 192.168.50.102
 - **MiniPC**: 192.168.50.196
 - **LG TV**: 192.168.50.250
 - **iPhone**: 192.168.50.160
 - **Total Devices**: 15
 
 ### Security Notes
-- **NetBIOS**: Open on MainPC (192.168.50.102, port 139)
-- **SMB**: Open on MainPC (192.168.50.102, port 445)
-- **RDP**: Open on 192.168.50.196 (port 3389)
+- **NetBIOS**: Open on HomePC (192.168.50.102, port 139)
+- **SMB**: Open on HomePC (192.168.50.102, port 445)
+- **RDP**: Open on MiniPC (192.168.50.196, port 3389)
 
 ## LLM Configuration
 
-### MainPC Ollama (로컬 LLM)
+### Ollama (HomePC에 설치)
 - **Endpoint**: http://localhost:11434/v1
 - **API Provider**: OpenAI Compatible
 - **API Key**: ollama (아무 문자열 - 인증 불필요)
@@ -130,15 +143,15 @@
   - tunnel-server 구동 (ports 8089, 8091)
   - systemd 서비스 등록 예정
   
-- **Client Development**: MainPC (192.168.50.102, Windows 11)
+- **Client Development**: HomePC (192.168.50.102, Windows 11)
   - tunnel-client.py 개발 (Python)
   - Git 작업
   - MiniPC와 직접 연결 테스트 (프록시 없이)
   - HTTP CONNECT 프록시 시뮬레이션
 
 **개발 절차**:
-1. MainPC에서 tunnel-client.py 작성
-2. MainPC → MiniPC (192.168.50.196:8089, 8091) 직접 연결
+1. HomePC에서 tunnel-client.py 작성
+2. HomePC → MiniPC (192.168.50.196:8089, 8091) 직접 연결
 3. 로컬 네트워크에서 end-to-end 테스트
 4. 프록시 시뮬레이션 코드 추가 (use_proxy 플래그)
 
@@ -156,13 +169,13 @@
   - MiniPC:8089 커맨드 채널 영구 연결
   - LLM 서버(172.21.113.31:4000) 프록시
   
-- **User**: MainPC (집)
+- **User**: HomePC (집)
   - http://110.13.119.7:8091/v1/chat/completions 호출
   - MiniPC를 통해 회사 LLM 접근
 
 **운영 시나리오**:
 ```
-MainPC (집)
+HomePC (집)
     ↓ HTTP
 MiniPC:8091 (집, 공인 IP)
     ↓ 터널 (8089 커맨드, 8091 데이터)
